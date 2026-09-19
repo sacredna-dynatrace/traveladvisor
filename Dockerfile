@@ -1,4 +1,4 @@
-FROM python:3.9.20-bookworm
+FROM python:3.11-bookworm
 
 COPY requirements.txt ./
 RUN pip install -r requirements.txt
