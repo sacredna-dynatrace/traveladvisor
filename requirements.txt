@@ -8,3 +8,4 @@ langchain-aws == 0.2.10
 lxml == 5.2.2
 traceloop-sdk == 0.50.1
 uvicorn == 0.29.0
+wrapt<2  # traceloop 0.50.x LangChain instrumentation breaks with wrapt 2.x

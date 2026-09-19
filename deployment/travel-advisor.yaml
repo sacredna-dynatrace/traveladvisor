@@ -22,7 +22,9 @@ spec:
     spec:
       containers:
         - name: travel-advisor
-          image: thisthatdc/travel-advisor:v0.3.0-bedrock
+          # Built locally from this repo and loaded into kind by .devcontainer/deployment.sh
+          image: travel-advisor:local
+          imagePullPolicy: Never
           env:
             - name: AWS_DEFAULT_REGION
               valueFrom:
@@ -54,6 +56,12 @@ spec:
                 secretKeyRef:
                   name: bedrock
                   key: guardrail
+            - name: AWS_GUARDRAIL_VERSION
+              valueFrom:
+                secretKeyRef:
+                  name: bedrock
+                  key: guardrail-version
+                  optional: true
           ports:
             - name: http
               containerPort: 8080

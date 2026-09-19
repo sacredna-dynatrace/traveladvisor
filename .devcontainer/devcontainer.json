@@ -63,7 +63,7 @@
 			"description": "Dynatrace API token with these permissions: Ingest metrics, Ingest logs, Ingest events, Ingest OpenTelemetry, Read metrics, Write settings"
 		},
 		"AWS_DEFAULT_REGION": {
-			"description": "AWS Region to use"
+			"description": "AWS Region to use, eg. us-east-1"
 		},
 		"AWS_ACCESS_KEY_ID": {
 			"description": "AWS access key associated with an IAM account"
@@ -72,10 +72,10 @@
 			"description": "AWS secret key associated with the access key"
 		},
 		"AWS_EMBEDDING_MODEL": {
-			"description": "Bedrock embedding model to use, eg. amazon.titan-embed-text-v1"
+			"description": "Bedrock embedding model to use, eg. amazon.titan-embed-text-v2:0"
 		},
 		"AWS_MODEL": {
-			"description": "Bedrock AI model to use, eg. amazon.titan-text-lite-v1"
+			"description": "Bedrock model or inference profile ID (Converse API), eg. us.amazon.nova-2-lite-v1:0"
 		},
 		"AWS_GUARDRAIL_ID": {
 			"description": "AWS Guardrail id to protect input and output prompt, eg. 5zwrmdlsra2e"

@@ -1,5 +1,10 @@
 #!/usr/bin/env bash
 
+# Titan Text G1 models are End-of-Life, so the prebuilt image (thisthatdc/travel-advisor:v0.3.0-bedrock)
+# no longer works. Build the app from this repo (Bedrock Converse API) and load it into kind.
+docker build -t travel-advisor:local .
+kind load docker-image travel-advisor:local --name kind
+
 kubectl create namespace travel-advisor
 
 # Create secrets
@@ -9,7 +14,8 @@ kubectl -n travel-advisor create secret generic bedrock \
   --from-literal=secret=$AWS_SECRET_ACCESS_KEY \
   --from-literal=embedding=$AWS_EMBEDDING_MODEL \
   --from-literal=model=$AWS_MODEL \
-  --from-literal=guardrail=$AWS_GUARDRAIL_ID
+  --from-literal=guardrail=$AWS_GUARDRAIL_ID \
+  --from-literal=guardrail-version=${AWS_GUARDRAIL_VERSION:-DRAFT}
 
 kubectl -n travel-advisor create secret generic dynatrace --from-literal=token=$DT_TOKEN --from-literal=endpoint=$DT_ENDPOINT/api/v2/otlp
 
