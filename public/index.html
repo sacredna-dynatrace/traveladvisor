@@ -46,7 +46,16 @@
     header nav { margin-left: auto; display: flex; gap: 20px; font-size: 14px; }
     header nav a { color: var(--ink); text-decoration: none; font-weight: 500; }
     header nav a:hover { color: var(--green-dark); }
-    @media (max-width: 760px) { header nav { display: none; } }
+    @media (max-width: 1040px) { header nav { display: none; } }
+    header nav a.nav-guide { color: #fff; background: var(--purple); padding: 4px 12px; border-radius: 999px; }
+    header nav a.nav-guide:hover { color: #fff; opacity: .9; }
+    .guide-cta { display: grid; grid-template-columns: repeat(2, 1fr); gap: 16px; }
+    @media (max-width: 760px) { .guide-cta { grid-template-columns: 1fr; } }
+    .guide-cta a { display: block; text-decoration: none; color: var(--ink); background: #fff; border: 1px solid var(--line); border-radius: var(--radius); padding: 22px; border-top: 4px solid var(--purple); }
+    .guide-cta a:hover { box-shadow: 0 8px 20px rgba(19,35,63,.08); }
+    .guide-cta h3 { margin: 0 0 6px; font-size: 17px; color: var(--navy); }
+    .guide-cta p { margin: 0 0 10px; font-size: 14px; color: var(--muted); }
+    .guide-cta span { font-weight: 700; color: var(--purple); font-size: 14px; }
     @media (max-width: 480px) { header.top img { height: 24px; } .demo-badge { font-size: 10.5px; padding: 3px 8px; } }
     .config-chip { max-width: 100%; }
     .config-chip #configText { overflow-wrap: anywhere; }
@@ -188,6 +197,8 @@
       <a href="#howto">사용 방법</a>
       <a href="#pipelines">Pipeline 비교</a>
       <a href="#architecture">아키텍처</a>
+      <a href="/guide.html#agent">Agent 동작 원리</a>
+      <a href="/guide.html#traceloop" class="nav-guide">적용 가이드</a>
     </nav>
   </div>
 </header>
@@ -447,6 +458,25 @@
 </section>
 
 <!-- ================= DEMO TIPS ================= -->
+<section class="block" id="guide">
+  <div class="wrap">
+    <h2 class="title">더 알아보기</h2>
+    <p class="sub">이 데모의 동작 원리와, 여러분의 AI 앱에 같은 Observability를 적용하는 방법을 정리했습니다.</p>
+    <div class="guide-cta">
+      <a href="/guide.html#agent">
+        <h3>Agent 동작 원리</h3>
+        <p>AI Agent가 Tool을 골라 LLM을 여러 번 호출하는 과정과, 그 과정이 Dynatrace Trace로 어떻게 보이는지 설명합니다.</p>
+        <span>Part 1 보기 →</span>
+      </a>
+      <a href="/guide.html#traceloop">
+        <h3>Traceloop(OpenLLMetry) 적용 가이드</h3>
+        <p>Python·Node.js AI 앱에 코드 2줄로 Dynatrace AI Observability를 적용하는 절차, 검증 DQL, 트러블슈팅을 담았습니다.</p>
+        <span>Part 2 보기 →</span>
+      </a>
+    </div>
+  </div>
+</section>
+
 <section class="block" id="tips">
   <div class="wrap">
     <h2 class="title">데모 시나리오 팁</h2>

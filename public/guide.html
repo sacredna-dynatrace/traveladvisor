@@ -1,0 +1,555 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AI 앱 Observability 가이드 · easyTravel Dynatrace Demo</title>
+  <link rel="icon" href="/favicon.ico">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700;800&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --green: #3fae5a; --green-dark: #2b8a44; --navy: #13233f; --ink: #1f2937; --muted: #6b7280;
+      --line: #e5e7eb; --bg: #f6f8fb; --purple: #6f2da8; --amber: #d97706; --radius: 14px;
+    }
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; scroll-padding-top: 80px; }
+    body { margin: 0; background: var(--bg); color: var(--ink); line-height: 1.7; word-break: keep-all;
+      font-family: "Noto Sans KR", "Apple SD Gothic Neo", "Malgun Gothic", system-ui, sans-serif; }
+    a { color: var(--green-dark); }
+    .wrap { max-width: 1180px; margin: 0 auto; padding: 0 20px; }
+
+    header.top { position: sticky; top: 0; z-index: 10; background: rgba(255,255,255,.96); backdrop-filter: blur(6px); border-bottom: 1px solid var(--line); }
+    header.top .wrap { display: flex; align-items: center; gap: 16px; height: 64px; }
+    header.top img { height: 30px; }
+    .demo-badge { font-size: 12px; font-weight: 700; color: #fff; background: var(--purple); padding: 4px 10px; border-radius: 999px; white-space: nowrap; }
+    header nav { margin-left: auto; display: flex; gap: 20px; font-size: 14px; }
+    header nav a { color: var(--ink); text-decoration: none; font-weight: 500; }
+    header nav a.active { color: var(--green-dark); font-weight: 700; }
+    @media (max-width: 860px) { header nav { display: none; } }
+    @media (max-width: 480px) { header.top img { height: 24px; } .demo-badge { font-size: 10.5px; padding: 3px 8px; } }
+
+    .intro { background: linear-gradient(135deg, #13233f, #3b2a6b); color: #fff; padding: 44px 0 40px; }
+    .intro h1 { margin: 0 0 8px; font-size: clamp(26px, 4vw, 38px); font-weight: 800; }
+    .intro p { margin: 0; max-width: 780px; opacity: .92; }
+    .tabs { display: flex; gap: 8px; margin-top: 22px; flex-wrap: wrap; }
+    .tabs a { color: #fff; text-decoration: none; border: 1px solid rgba(255,255,255,.4); border-radius: 999px; padding: 6px 16px; font-size: 14px; font-weight: 500; }
+    .tabs a:hover { background: rgba(255,255,255,.15); }
+
+    .layout { display: grid; grid-template-columns: 230px minmax(0, 1fr); gap: 32px; padding: 32px 0 60px; }
+    @media (max-width: 960px) { .layout { grid-template-columns: minmax(0, 1fr); } aside.toc { display: none; } }
+    aside.toc { position: sticky; top: 84px; align-self: start; font-size: 13.5px; }
+    aside.toc b { display: block; color: var(--navy); margin: 14px 0 6px; }
+    aside.toc a { display: block; color: var(--muted); text-decoration: none; padding: 3px 0 3px 10px; border-left: 2px solid var(--line); }
+    aside.toc a:hover { color: var(--green-dark); border-left-color: var(--green); }
+
+    article { min-width: 0; }
+    article section { background: #fff; border: 1px solid var(--line); border-radius: var(--radius); padding: 26px 28px; margin-bottom: 20px; }
+    @media (max-width: 560px) { article section { padding: 20px 16px; } }
+    article h2 { margin: 0 0 10px; font-size: 22px; color: var(--navy); font-weight: 800; }
+    article h3 { margin: 22px 0 8px; font-size: 16.5px; color: var(--navy); }
+    article p { margin: 0 0 12px; }
+    .part { font-size: 13px; font-weight: 800; letter-spacing: .06em; color: var(--purple); margin: 34px 0 10px; }
+    .lead { font-size: 16px; }
+    ul, ol { margin: 0 0 12px; padding-left: 22px; }
+    li { margin: 3px 0; }
+    code { background: #eef2f7; padding: 1px 6px; border-radius: 5px; font-size: 13px; color: var(--navy); overflow-wrap: anywhere; }
+    .code { position: relative; margin: 0 0 14px; }
+    .code pre { margin: 0; background: #0f172a; color: #e2e8f0; border-radius: 10px; padding: 16px 18px; overflow-x: auto; font-size: 13px; line-height: 1.6; }
+    .code pre code { background: none; color: inherit; padding: 0; font-size: inherit; overflow-wrap: normal; }
+    .code .lang { position: absolute; top: 8px; right: 64px; font-size: 11px; color: #94a3b8; }
+    .code button { position: absolute; top: 6px; right: 8px; font-size: 11.5px; border: 1px solid #334155; background: #1e293b; color: #cbd5e1; border-radius: 6px; padding: 3px 8px; cursor: pointer; font-family: inherit; }
+    .code button:hover { background: #334155; }
+    .tbl { overflow-x: auto; margin: 0 0 14px; }
+    table { width: 100%; border-collapse: collapse; font-size: 14px; }
+    th, td { border-bottom: 1px solid var(--line); padding: 10px 12px; text-align: left; vertical-align: top; }
+    th { background: var(--navy); color: #fff; font-weight: 700; white-space: nowrap; }
+    tr:last-child td { border-bottom: 0; }
+    .check li { list-style: none; margin-left: -22px; padding-left: 28px; position: relative; }
+    .check li::before { content: "☐"; position: absolute; left: 4px; color: var(--green-dark); }
+    .note { background: #fffbeb; border: 1px solid #fde68a; border-radius: 10px; padding: 12px 14px; font-size: 14px; margin: 0 0 14px; }
+    .note.dt { background: #f5f0fb; border-color: #ddd0f3; }
+    .mermaid { background: #fbfcfe; border: 1px solid var(--line); border-radius: 10px; padding: 12px; margin: 0 0 14px; text-align: center; overflow-x: auto; }
+    .steps3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin: 0 0 14px; }
+    @media (max-width: 760px) { .steps3 { grid-template-columns: 1fr; } }
+    .steps3 div { border: 1px solid var(--line); border-radius: 12px; padding: 14px; background: #fbfcfe; }
+    .steps3 b { display: block; color: var(--green-dark); margin-bottom: 4px; }
+    .back { display: inline-block; margin-top: 8px; font-weight: 700; text-decoration: none; }
+    footer { padding: 26px 0 40px; border-top: 1px solid var(--line); font-size: 13px; color: var(--muted); background: #fff; }
+  </style>
+</head>
+<body>
+
+<header class="top">
+  <div class="wrap">
+    <a href="/"><img src="/images/easytravel-logo.svg" alt="easyTravel"></a>
+    <span class="demo-badge">Dynatrace AI Observability Demo</span>
+    <nav>
+      <a href="/#try">체험하기</a>
+      <a href="/#about">데모 소개</a>
+      <a href="/#architecture">아키텍처</a>
+      <a href="/guide.html#agent">Agent 동작 원리</a>
+      <a href="/guide.html#traceloop" class="active">적용 가이드</a>
+    </nav>
+  </div>
+</header>
+
+<div class="intro">
+  <div class="wrap">
+    <h1>AI 애플리케이션 Observability 가이드</h1>
+    <p>이 데모의 AI Agent가 어떻게 동작하는지, 그리고 여러분의 AI 앱에 Traceloop(OpenLLMetry)를 적용해 Dynatrace에서 관측하는 방법을 정리했습니다. easyTravel Travel Advisor에 실제로 적용하며 검증한 내용입니다.</p>
+    <div class="tabs">
+      <a href="#agent">Part 1 · Agent 동작 원리</a>
+      <a href="#traceloop">Part 2 · Traceloop 적용 가이드</a>
+      <a href="/">← 데모로 돌아가기</a>
+    </div>
+  </div>
+</div>
+
+<div class="wrap layout">
+  <aside class="toc">
+    <b>Part 1 · Agent 동작 원리</b>
+    <a href="#agent">한눈에 보기</a>
+    <a href="#agent-parts">Agent 구성 요소</a>
+    <a href="#agent-flow">요청 한 건의 흐름</a>
+    <a href="#agent-trace">Dynatrace에서 보이는 모습</a>
+    <b>Part 2 · Traceloop 적용 가이드</b>
+    <a href="#traceloop">1. 개요</a>
+    <a href="#g-prep">2. 사전 준비</a>
+    <a href="#g-python">3. 5분 적용 (Python)</a>
+    <a href="#g-node">3-1. Node.js 적용</a>
+    <a href="#g-auto">4. 자동 계측 범위</a>
+    <a href="#g-agent">5. Agents topology 표시</a>
+    <a href="#g-k8s">6. Kubernetes 배포</a>
+    <a href="#g-verify">7. 적용 검증 (DQL)</a>
+    <a href="#g-trouble">8. 트러블슈팅</a>
+    <a href="#g-ops">9. 운영 권장사항</a>
+    <a href="#g-ref">10. 참고 문서</a>
+  </aside>
+
+  <article>
+    <!-- ===================== PART 1 ===================== -->
+    <div class="part">PART 1</div>
+    <section id="agent">
+      <h2>Agent 동작 원리 한눈에 보기</h2>
+      <p class="lead">여행사 창구 직원(<b>Agent</b>)이 필요한 도구(<b>Tool</b>)를 스스로 골라 쓰며 답을 만들고, <b>Dynatrace</b>는 그 모든 과정을 한 건의 Trace로 기록합니다.</p>
+      <div class="mermaid">
+flowchart LR
+    U[사용자<br/>Web Browser] -->|여행지 요청| A[travel-advisor<br/>FastAPI]
+    A --> P{Pipeline}
+    P -->|None| L1[LLM 1회 호출]
+    P -->|RAG| R[FAISS 문서 검색] --> L2[LLM 답변]
+    P -->|Agentic| AG[travel-advisor-agent]
+    AG --> T1[valid_city Tool]
+    AG --> T2[travel_advice Tool]
+    A -. OpenTelemetry .-> DT[Dynatrace]
+      </div>
+      <p>None은 LLM을 한 번 호출하고, RAG는 문서를 먼저 검색한 뒤 호출합니다. Agentic은 LLM이 스스로 판단해 여러 번 호출되는 구조라서 <b>보이지 않으면 비용과 지연을 통제할 수 없습니다.</b></p>
+    </section>
+
+    <section id="agent-parts">
+      <h2>Agent 구성 요소</h2>
+      <p>Agent(<code>pipeline/agentic.py</code>)는 도구, 행동 규칙, 반복 실행기 세 가지로 이루어집니다.</p>
+      <h3>① 도구 (Tools)</h3>
+      <p>Agent가 쓸 수 있는 함수입니다. Agent는 각 함수의 설명(docstring)을 읽고 어떤 도구를 쓸지 고릅니다. 도구 안에서도 LLM이 다시 호출됩니다.</p>
+      <div class="tbl"><table>
+        <tr><th>Tool</th><th>역할</th></tr>
+        <tr><td><code>valid_city</code></td><td>입력한 여행지가 실제 도시인지 확인</td></tr>
+        <tr><td><code>travel_advice</code></td><td>여행 조언 생성</td></tr>
+        <tr><td><code>movie_quote</code></td><td>영화 대사 (Agent가 엉뚱한 도구를 고르는지 확인하는 미끼)</td></tr>
+      </table></div>
+      <div class="code"><span class="lang">python</span><pre><code>@tool
+def valid_city(city: str) -&gt; bool:
+    """Returns if the input is a valid city"""   # ← Agent가 읽는 설명
+    response = get_model().chat(f"Is {city} a city? respond only with yes or no.")
+    return response == "yes"</code></pre></div>
+
+      <h3>② 행동 규칙 (ReAct Prompt)</h3>
+      <p>LLM에게 "생각 → 도구 선택 → 결과 확인"을 반복하고, 정해진 JSON 형식으로만 답하도록 지시합니다. 이 방식을 <b>ReAct(Reason + Act)</b> 패턴이라고 합니다.</p>
+      <div class="code"><span class="lang">text</span><pre><code>Thought: 무엇을 할지 생각
+Action: {"action": "valid_city", "action_input": {"city": "Tokyo"}}
+Observation: (도구 실행 결과)
+... 반복 ...
+Action: {"action": "Final Answer", "action_input": "최종 답변"}</code></pre></div>
+
+      <h3>③ 반복 실행기 (AgentExecutor)</h3>
+      <div class="code"><span class="lang">python</span><pre><code>AgentExecutor(agent=agent, tools=tools,
+              handle_parsing_errors=True,   # 형식이 틀리면 다시 시도
+              max_iterations=10)            # 무한 루프 방지</code></pre></div>
+
+      <h3>④ Observability 래퍼</h3>
+      <p>Agent 실행 전체를 OpenTelemetry GenAI 표준 속성으로 표시해, Dynatrace AI Observability의 <b>Agents topology</b>에 Agent로 나타나게 합니다.</p>
+      <div class="code"><span class="lang">python</span><pre><code>@traceloop_agent(name="travel-advisor-agent")
+def _invoke_agent(self, model, task):
+    span = trace.get_current_span()
+    span.set_attribute("gen_ai.operation.name", "invoke_agent")
+    span.set_attribute("gen_ai.agent.name", "travel-advisor-agent")
+    return self.agent_executor.invoke({"input": task})</code></pre></div>
+    </section>
+
+    <section id="agent-flow">
+      <h2>요청 한 건의 흐름</h2>
+      <p>"도쿄"를 Agentic으로 요청하면 사용자 요청은 1건이지만 <b>LLM은 약 5번</b> 호출됩니다. None보다 응답이 느리고 Token 비용이 3~5배 드는 이유입니다.</p>
+      <div class="mermaid">
+sequenceDiagram
+    participant U as 사용자
+    participant A as Agent
+    participant L as Claude (LLM)
+    participant T as Tools
+    U->>A: 도쿄
+    A->>L: ① 무엇을 할까?
+    L-->>A: valid_city 사용
+    A->>T: valid_city(Tokyo)
+    T->>L: ② 도시인가?
+    L-->>T: yes
+    A->>L: ③ 다음 행동은?
+    L-->>A: travel_advice 사용
+    A->>T: travel_advice(Tokyo)
+    T->>L: ④ 여행 조언 생성
+    A->>L: ⑤ 최종 답변 정리 (한국어)
+    A-->>U: 답변
+      </div>
+    </section>
+
+    <section id="agent-trace">
+      <h2>Dynatrace에서 보이는 모습</h2>
+      <p>모든 단계가 하나의 Trace로 연결되고, LLM·Tool Span에는 <code>gen_ai.agent.name</code>이 붙어 "이 Agent가 요청 한 건에 Token을 얼마나 썼는지", "어느 단계가 느렸는지"를 바로 볼 수 있습니다.</p>
+      <div class="code"><span class="lang">trace</span><pre><code>/api/v1/completion                     ← FastAPI 요청
+ └ travel_answer_generator.workflow
+    └ travel-advisor-agent.agent       ← invoke_agent (Agents topology의 Agent 노드)
+       └ AgentExecutor.workflow
+          ├ ChatAnthropic.chat          ← Agent 판단 (Token · 지연)
+          ├ valid_city.tool             ← execute_tool
+          │  └ anthropic.chat
+          ├ ChatAnthropic.chat
+          ├ travel_advice.tool          ← execute_tool
+          │  └ anthropic.chat
+          └ ChatAnthropic.chat          ← Final Answer</code></pre></div>
+      <div class="note dt">확인 위치: <b>AI Observability → Agents topology</b>에서 <code>travel-advisor → travel-advisor-agent → Anthropic → claude-haiku-4-5</code> 연결을, <b>Distributed Tracing</b>에서 위 Span 트리를 확인합니다.</div>
+    </section>
+
+    <!-- ===================== PART 2 ===================== -->
+    <div class="part">PART 2 · TRACELOOP(OPENLLMETRY) 적용 가이드</div>
+    <section id="traceloop">
+      <h2>1. 개요</h2>
+      <p class="lead">Python·Node.js AI 앱에 <b>코드 2줄</b>(import와 <code>Traceloop.init</code>)만 추가하면 LLM 호출, RAG, Agent 흐름이 OpenTelemetry로 Dynatrace에 수집됩니다.</p>
+      <ul>
+        <li><b>Traceloop OpenLLMetry</b>: OpenTelemetry 기반 오픈소스 SDK입니다. LLM SDK와 LangChain 같은 프레임워크를 자동 계측해 <code>gen_ai.*</code> 속성(Model, Token, 응답 시간)을 Span에 기록합니다.</li>
+        <li><b>Dynatrace</b>: OTLP/HTTP Endpoint(<code>/api/v2/otlp</code>)로 데이터를 받아 Grail에 저장하고, AI Observability 앱·Distributed Tracing·Davis AI로 분석합니다.</li>
+      </ul>
+      <div class="mermaid">
+flowchart LR
+    A[AI 앱<br/>Python · Node.js] -->|LLM 호출| B[LLM Provider<br/>Claude · Bedrock · OpenAI]
+    A -->|자동 계측| C[Traceloop SDK]
+    C -->|OTLP/HTTP| D[Dynatrace<br/>/api/v2/otlp]
+    D --> E[AI Observability<br/>Distributed Tracing · Davis AI]
+      </div>
+    </section>
+
+    <section id="g-prep">
+      <h2>2. 사전 준비 체크리스트</h2>
+      <p>Endpoint 형식과 Python 버전이 가장 많이 막히는 부분입니다.</p>
+      <ul class="check">
+        <li><b>Dynatrace SaaS(DPS)</b>: Traces·Metrics powered by Grail, Log Analytics 활성화</li>
+        <li><b>API Token scope 3개</b>: <code>openTelemetryTrace.ingest</code>, <code>metrics.ingest</code>, <code>logs.ingest</code></li>
+        <li><b>OTLP Endpoint</b>: <code>https://&lt;tenant-id&gt;.live.dynatrace.com/api/v2/otlp</code> (<code>.apps.</code> 아님, 끝에 <code>/</code> 없음)</li>
+        <li><b>Python 3.10 이상</b>: <code>traceloop-sdk</code> 0.50.x는 Python 3.9에 설치되지 않음 (Node.js는 3-1장)</li>
+        <li><b>LLM SDK 버전</b>: anthropic, boto3, openai, langchain 등이 SDK 지원 범위인지 확인</li>
+        <li><b>네트워크</b>: 앱 실행 환경에서 Dynatrace Endpoint로 HTTPS(443) 아웃바운드 허용</li>
+      </ul>
+      <div class="tbl"><table>
+        <tr><th>항목</th><th>이 데모에서 검증한 값</th></tr>
+        <tr><td>Python</td><td>3.11 (<code>python:3.11-bookworm</code>)</td></tr>
+        <tr><td>traceloop-sdk</td><td>0.50.1</td></tr>
+        <tr><td>LangChain</td><td>langchain 0.3.14, langchain-anthropic 0.3.3, langchain-aws 0.2.10</td></tr>
+        <tr><td>wrapt</td><td>1.x (<code>wrapt&lt;2</code>)</td></tr>
+        <tr><td>LLM</td><td>Claude Haiku 4.5, Amazon Nova 2 Lite (Bedrock)</td></tr>
+      </table></div>
+    </section>
+
+    <section id="g-python">
+      <h2>3. 5분 적용 (Python)</h2>
+      <p>초기화는 <b>LLM SDK나 LangChain을 import하기 전에</b> 한 번만 호출해야 자동 계측이 걸립니다.</p>
+      <h3>① 설치</h3>
+      <div class="code"><span class="lang">bash</span><pre><code>pip install traceloop-sdk "wrapt&lt;2"</code></pre></div>
+      <h3>② 환경 변수</h3>
+      <div class="code"><span class="lang">bash</span><pre><code>export DT_ENDPOINT=https://&lt;tenant-id&gt;.live.dynatrace.com   # 끝에 / 없이
+export DT_TOKEN=dt0c01.xxxx                                  # scope 3개
+export OTEL_EXPORTER_OTLP_METRICS_TEMPORALITY_PREFERENCE=delta  # Dynatrace는 delta 메트릭 수신
+export TRACELOOP_TELEMETRY=false                             # Traceloop 사용 통계 전송 끄기</code></pre></div>
+      <h3>③ 초기화 코드 (앱 시작 파일 맨 위)</h3>
+      <div class="code"><span class="lang">python</span><pre><code>import os
+from traceloop.sdk import Traceloop
+
+Traceloop.init(
+    app_name="my-ai-app",                                     # Dynatrace 서비스 이름
+    api_endpoint=os.environ["DT_ENDPOINT"] + "/api/v2/otlp",  # https:// 로 시작해야 HTTP 전송
+    headers={"Authorization": f"Api-Token {os.environ['DT_TOKEN']}"},
+    disable_batch=True,   # 데모·개발용: 즉시 전송 (운영은 9장 참고)
+)
+
+# 이 아래에서 LLM SDK / LangChain import
+from anthropic import Anthropic</code></pre></div>
+      <p>앱 로그에 <code>Traceloop exporting traces to https://...</code>가 보이면 연결 설정은 끝난 것입니다.</p>
+      <h3>④ (선택) 업무 단위 묶기</h3>
+      <div class="code"><span class="lang">python</span><pre><code>from traceloop.sdk.decorators import workflow, task
+
+@task(name="retrieve_docs")
+def retrieve(q): ...
+
+@workflow(name="answer_question")
+def answer(q):
+    docs = retrieve(q)
+    return llm_call(q, docs)</code></pre></div>
+    </section>
+
+    <section id="g-node">
+      <h2>3-1. Node.js 앱에 적용</h2>
+      <p><code>@traceloop/node-server-sdk</code>를 씁니다. Dynatrace 문서 기준으로 <b>Node.js SDK는 Metric을 지원하지 않아</b> Trace만 수집됩니다(Token 수는 Span 속성으로 남음).</p>
+      <h3>① 설치</h3>
+      <div class="code"><span class="lang">bash</span><pre><code>npm install @traceloop/node-server-sdk</code></pre></div>
+      <h3>② 초기화 코드 (엔트리 파일 맨 위, LLM SDK보다 먼저)</h3>
+      <div class="code"><span class="lang">javascript</span><pre><code>// tracing.js — 다른 모듈보다 먼저 import 되어야 함
+import * as traceloop from "@traceloop/node-server-sdk";
+
+traceloop.initialize({
+  appName: "my-ai-app",
+  baseUrl: `${process.env.DT_ENDPOINT}/api/v2/otlp`,
+  headers: { Authorization: `Api-Token ${process.env.DT_TOKEN}` },
+  disableBatch: true,        // 데모·개발용 (운영은 false)
+  traceContent: true,        // 운영에서 프롬프트 원문을 남기지 않으려면 false
+});</code></pre></div>
+      <div class="code"><span class="lang">javascript</span><pre><code>// index.js
+import "./tracing.js";                    // 반드시 첫 줄
+import Anthropic from "@anthropic-ai/sdk"; // 그 다음 LLM SDK</code></pre></div>
+      <p>환경 변수로도 설정할 수 있습니다(이 경우에도 <code>traceloop.initialize()</code> 호출은 필요).</p>
+      <div class="code"><span class="lang">bash</span><pre><code>export TRACELOOP_BASE_URL=https://&lt;tenant-id&gt;.live.dynatrace.com/api/v2/otlp
+export TRACELOOP_HEADERS="Authorization=Api-Token%20&lt;dt0c01.xxxx&gt;"   # 공백은 %20</code></pre></div>
+      <h3>③ ESM · 번들러 환경</h3>
+      <p>Next.js·webpack처럼 import 순서를 보장하기 어려우면 <code>instrumentModules</code>로 모듈을 직접 넘깁니다.</p>
+      <div class="code"><span class="lang">javascript</span><pre><code>import * as traceloop from "@traceloop/node-server-sdk";
+import Anthropic from "@anthropic-ai/sdk";
+import OpenAI from "openai";
+
+traceloop.initialize({
+  appName: "my-ai-app",
+  baseUrl: `${process.env.DT_ENDPOINT}/api/v2/otlp`,
+  headers: { Authorization: `Api-Token ${process.env.DT_TOKEN}` },
+  instrumentModules: { anthropic: Anthropic, openAI: OpenAI },
+});</code></pre></div>
+      <h3>④ Workflow · Agent · Tool 묶기</h3>
+      <p><code>withWorkflow</code>, <code>withAgent</code>, <code>withTool</code> 함수를 씁니다. <code>withAgent</code> 안의 하위 Span에는 <code>gen_ai.agent.name</code>이 자동으로 붙습니다.</p>
+      <div class="code"><span class="lang">javascript</span><pre><code>import { withAgent, withTool } from "@traceloop/node-server-sdk";
+import { trace } from "@opentelemetry/api";
+
+const validCity = (city) =>
+  withTool({ name: "valid_city" }, async () => {
+    trace.getActiveSpan()?.setAttributes({
+      "gen_ai.operation.name": "execute_tool",
+      "gen_ai.tool.name": "valid_city",
+    });
+    return askLlm(`Is ${city} a city? respond only with yes or no.`);
+  });
+
+export const runAgent = (task) =>
+  withAgent({ name: "travel-advisor-agent" }, async () => {
+    trace.getActiveSpan()?.setAttributes({
+      "gen_ai.operation.name": "invoke_agent",
+      "gen_ai.agent.name": "travel-advisor-agent",
+      "gen_ai.provider.name": "anthropic",
+    });
+    // ... Agent 루프: LLM 판단 → validCity() → ...
+  });</code></pre></div>
+    </section>
+
+    <section id="g-auto">
+      <h2>4. 자동 계측 범위</h2>
+      <p><code>traceloop-sdk</code> 0.50.1은 아래 라이브러리를 import만 하면 코드 수정 없이 계측합니다.</p>
+      <div class="tbl"><table>
+        <tr><th>구분</th><th>자동 계측 대상</th></tr>
+        <tr><td>LLM Provider</td><td>OpenAI, Anthropic, Amazon Bedrock, SageMaker, Google Vertex AI · Gemini, Mistral, Cohere, Groq, Ollama, Together, Replicate, IBM watsonx, Aleph Alpha, Writer, Hugging Face Transformers</td></tr>
+        <tr><td>Agent · 프레임워크</td><td>LangChain, LlamaIndex, Haystack, CrewAI, OpenAI Agents SDK, Agno, MCP</td></tr>
+        <tr><td>Vector DB</td><td>Pinecone, Chroma, Qdrant, Weaviate, Milvus, LanceDB, Marqo, Redis</td></tr>
+        <tr><td>기타</td><td>requests, urllib3, PyMySQL</td></tr>
+      </table></div>
+      <div class="tbl"><table>
+        <tr><th>LLM Span 속성</th><th>예시 값</th></tr>
+        <tr><td><code>gen_ai.system</code></td><td><code>Anthropic</code>, <code>AWS</code></td></tr>
+        <tr><td><code>gen_ai.request.model</code> / <code>gen_ai.response.model</code></td><td><code>claude-haiku-4-5-20251001</code></td></tr>
+        <tr><td><code>gen_ai.usage.input_tokens</code> / <code>output_tokens</code></td><td><code>11</code> / <code>7</code></td></tr>
+        <tr><td><code>gen_ai.request.temperature</code>, <code>max_tokens</code></td><td><code>0.5</code>, <code>512</code></td></tr>
+        <tr><td><code>aws.bedrock.guardrail.id</code></td><td><code>gr123:DRAFT</code> (Bedrock Guardrail 사용 시)</td></tr>
+        <tr><td><code>gen_ai.prompt.*</code> / <code>gen_ai.completion.*</code></td><td>프롬프트·응답 원문 (9장에서 끄는 법)</td></tr>
+      </table></div>
+    </section>
+
+    <section id="g-agent">
+      <h2>5. Agent·Tool을 Agents topology에 보이게 하기</h2>
+      <p>자동 계측만으로는 <b>Agents topology의 Agents가 0</b>으로 나올 수 있습니다. Dynatrace는 OpenTelemetry <b>GenAI agent semantic conventions</b>(<code>gen_ai.operation.name=invoke_agent</code>, <code>gen_ai.agent.name</code>)이 있는 Span을 Agent로 인식하는데, traceloop-sdk 0.50.1의 LangChain 계측은 <code>AgentExecutor</code>를 <code>workflow</code> Span으로만 남기기 때문입니다.</p>
+      <h3>① Agent 실행을 @agent로 감싸고 표준 속성 추가</h3>
+      <div class="code"><span class="lang">python</span><pre><code>from opentelemetry import trace
+from traceloop.sdk.decorators import agent
+
+AGENT_NAME = "travel-advisor-agent"
+
+@agent(name=AGENT_NAME)   # 하위 LLM·Tool Span에도 gen_ai.agent.name 자동 전파
+def run_agent(task: str):
+    span = trace.get_current_span()
+    span.set_attribute("gen_ai.operation.name", "invoke_agent")
+    span.set_attribute("gen_ai.agent.name", AGENT_NAME)
+    span.set_attribute("gen_ai.agent.id", "travel-advisor-agent-v1")
+    span.set_attribute("gen_ai.agent.description", "Validates the city and gives travel advice")
+    span.set_attribute("gen_ai.provider.name", "anthropic")      # aws.bedrock, openai ...
+    span.set_attribute("gen_ai.request.model", "claude-haiku-4-5-20251001")
+    return agent_executor.invoke({"input": task})</code></pre></div>
+      <h3>② Tool 함수에 execute_tool 속성 추가</h3>
+      <div class="code"><span class="lang">python</span><pre><code>def mark_tool_span(name: str, description: str) -&gt; None:
+    span = trace.get_current_span()          # LangChain이 만든 Tool Span
+    span.set_attribute("gen_ai.operation.name", "execute_tool")
+    span.set_attribute("gen_ai.tool.name", name)
+    span.set_attribute("gen_ai.tool.type", "function")
+    span.set_attribute("gen_ai.tool.description", description)
+
+@tool
+def valid_city(city: str) -&gt; bool:
+    """Returns if the input is a valid city"""
+    mark_tool_span("valid_city", "Returns if the input is a valid city")
+    ...</code></pre></div>
+      <div class="note">OpenAI Agents SDK, CrewAI처럼 Agent 전용 계측이 있는 프레임워크는 이 작업이 필요 없을 수 있습니다. 먼저 Agents topology를 확인하고 0일 때만 추가하세요.</div>
+    </section>
+
+    <section id="g-k8s">
+      <h2>6. 컨테이너 · Kubernetes 배포 설정</h2>
+      <p>토큰과 Endpoint는 코드에 넣지 말고 <b>Kubernetes Secret → 환경 변수</b>로 주입하세요.</p>
+      <div class="code"><span class="lang">dockerfile</span><pre><code>FROM python:3.11-bookworm          # 3.9 이미지는 traceloop-sdk 설치 실패
+COPY requirements.txt ./
+RUN pip install -r requirements.txt  # traceloop-sdk, "wrapt&lt;2" 포함
+ENV OTEL_EXPORTER_OTLP_METRICS_TEMPORALITY_PREFERENCE=delta \
+    TRACELOOP_TELEMETRY=false</code></pre></div>
+      <div class="code"><span class="lang">bash</span><pre><code>kubectl -n my-ai-app create secret generic dynatrace \
+  --from-literal=endpoint=https://&lt;tenant-id&gt;.live.dynatrace.com/api/v2/otlp \
+  --from-literal=token=&lt;dt0c01.xxxx&gt;</code></pre></div>
+      <div class="code"><span class="lang">yaml</span><pre><code>env:
+  - name: OTEL_ENDPOINT
+    valueFrom: { secretKeyRef: { name: dynatrace, key: endpoint } }
+  - name: API_TOKEN
+    valueFrom: { secretKeyRef: { name: dynatrace, key: token } }
+  - name: OTEL_SERVICE_NAME
+    value: my-ai-app</code></pre></div>
+      <ul>
+        <li>Secret을 바꾼 뒤에는 <code>kubectl rollout restart deploy/&lt;name&gt;</code>으로 Pod를 재시작해야 반영됩니다.</li>
+        <li>kind 로컬 클러스터에서는 <code>kind load docker-image</code>로 이미지를 올리고 <code>imagePullPolicy: Never</code>를 <b>한 번만</b> 선언합니다.</li>
+        <li>운영 클러스터에서는 ECR·Harbor 같은 Registry에 push하고 pull하는 방식을 씁니다.</li>
+        <li><code>OTEL_SERVICE_NAME</code>과 <code>app_name</code>을 같은 값으로 두면 서비스 이름이 하나로 보입니다.</li>
+      </ul>
+    </section>
+
+    <section id="g-verify">
+      <h2>7. 적용 검증</h2>
+      <p>요청을 2~3번 보낸 뒤 1~2분 기다렸다가 아래 순서로 확인합니다.</p>
+      <ol>
+        <li><b>앱 로그</b>: <code>Traceloop exporting traces to https://...</code> 확인, <code>Illegal header key</code> 오류 없음</li>
+        <li><b>Distributed Tracing</b>: 서비스 선택 → LLM Span의 <code>gen_ai.request.model</code>, Token 속성 확인</li>
+        <li><b>AI Observability</b>: Overview의 Model·Provider, Agents topology의 연결 확인</li>
+        <li><b>Notebooks(DQL)</b>: 아래 쿼리로 수치 확인</li>
+      </ol>
+      <h3>Model별 요청 수 · Token · 지연 시간</h3>
+      <div class="code"><span class="lang">DQL</span><pre><code>fetch spans, from: now() - 1h
+| filter isNotNull(gen_ai.request.model)
+| summarize requests = count(),
+            input_tokens = sum(gen_ai.usage.input_tokens),
+            output_tokens = sum(gen_ai.usage.output_tokens),
+            p95 = percentile(duration, 95),
+            by: { service.name, gen_ai.request.model }</code></pre></div>
+      <h3>Agent 실행 횟수와 소요 시간</h3>
+      <div class="code"><span class="lang">DQL</span><pre><code>fetch spans, from: now() - 1h
+| filter gen_ai.operation.name == "invoke_agent"
+| summarize runs = count(), avg_duration = avg(duration), by: { gen_ai.agent.name }</code></pre></div>
+      <h3>Tool별 호출 횟수</h3>
+      <div class="code"><span class="lang">DQL</span><pre><code>fetch spans, from: now() - 1h
+| filter gen_ai.operation.name == "execute_tool"
+| summarize calls = count(), by: { gen_ai.agent.name, gen_ai.tool.name }</code></pre></div>
+      <h3>실패한 LLM 호출</h3>
+      <div class="code"><span class="lang">DQL</span><pre><code>fetch spans, from: now() - 1h
+| filter isNotNull(gen_ai.system) and span.status_code == "error"
+| fields start_time, service.name, span.name, gen_ai.request.model
+| sort start_time desc</code></pre></div>
+      <p>Token 속성이 문자열로 들어오면 <code>toLong()</code>으로 감싸 합계를 구하세요.</p>
+    </section>
+
+    <section id="g-trouble">
+      <h2>8. 트러블슈팅</h2>
+      <p>이번 적용 중 실제로 겪은 문제입니다. 데이터가 안 보이면 <b>1번(Endpoint)부터</b> 확인하세요.</p>
+      <div class="tbl"><table>
+        <tr><th>증상</th><th>원인</th><th>조치</th></tr>
+        <tr><td><code>Metadata key 'Authorization' is invalid: Illegal header key</code>, 데이터 없음</td><td>Endpoint에 <code>http</code>가 없거나 비어 gRPC로 전환. gRPC는 대문자 헤더 거부</td><td><code>https://&lt;tenant&gt;.live.dynatrace.com/api/v2/otlp</code>로 수정 후 재시작</td></tr>
+        <tr><td><code>traceloop-sdk==0.50.1 depends on Python&gt;=3.10</code></td><td>베이스 이미지가 Python 3.9</td><td><code>python:3.11</code> 이상 사용</td></tr>
+        <tr><td><code>Error initializing LangChain instrumentor: wrap_function_wrapper() ... 'module'</code></td><td>wrapt 2.x 비호환</td><td><code>wrapt&lt;2</code> 고정</td></tr>
+        <tr><td>Agents topology의 Agents가 0</td><td>Agent Span에 GenAI agent 속성 없음</td><td>5장대로 <code>invoke_agent</code> 속성 추가</td></tr>
+        <tr><td>Agent에서 <code>No generation chunks were returned</code>, Span 조각남</td><td>LangChain Agent가 streaming 호출 사용</td><td>Chat 모델에 <code>disable_streaming=True</code></td></tr>
+        <tr><td><code>gen_ai.request.model</code>에 Provider 이름까지 붙음</td><td>Bedrock <code>global.</code> inference profile 미해석</td><td><code>us.</code>/<code>eu.</code> profile 사용 또는 SDK 업그레이드</td></tr>
+        <tr><td>Bedrock <code>Error 002: Access to Bedrock models is not allowed for this account</code></td><td>AWS 계정 단위 차단. 코드 문제 아님</td><td>Playground 재현 확인 후 AWS Support(Account and billing) 문의</td></tr>
+        <tr><td>Pod <code>ImagePullBackOff</code> (kind)</td><td><code>imagePullPolicy: Always</code> 중복으로 로컬 이미지 무시</td><td>중복 키 삭제, <code>kind load docker-image</code> 확인</td></tr>
+        <tr><td>모델 EOL로 호출 실패 (예: Titan Text G1)</td><td>모델 전용 요청 포맷에 의존</td><td>Bedrock은 모델 공통 Converse API로 호출</td></tr>
+      </table></div>
+    </section>
+
+    <section id="g-ops">
+      <h2>9. 운영 권장사항</h2>
+      <div class="tbl"><table>
+        <tr><th>항목</th><th>데모 설정</th><th>운영 권장</th><th>이유</th></tr>
+        <tr><td>프롬프트·응답 원문 수집</td><td>기본값(수집)</td><td><code>TRACELOOP_TRACE_CONTENT=false</code></td><td>개인정보·기밀이 Span에 남지 않도록. Token·Model·지연은 계속 수집</td></tr>
+        <tr><td>전송 방식</td><td><code>disable_batch=True</code></td><td><code>disable_batch=False</code></td><td>즉시 전송은 요청 경로에서 동기 export가 일어나 응답이 느려질 수 있음</td></tr>
+        <tr><td>토큰 관리</td><td>환경 변수·Codespaces secret</td><td>Kubernetes Secret 또는 Secret Manager</td><td>Ingest 전용 토큰은 읽기 권한 없이 발급</td></tr>
+      </table></div>
+      <ul>
+        <li><b>비용 가시화</b>: 7장 DQL의 Token 합계에 Model별 단가를 곱해 Dashboard로 만들면 팀·기능별 LLM 비용을 추적할 수 있습니다.</li>
+        <li><b>Agent 가드레일</b>: <code>max_iterations</code>를 제한하고, Agent당 LLM 호출 수·지연에 Davis 이상 탐지나 임계치 알림을 겁니다.</li>
+        <li><b>사용자 피드백</b>: 👍/👎 피드백을 로그나 Span 속성으로 남기면 답변 품질을 정량 지표로 볼 수 있습니다.</li>
+        <li><b>버전 고정</b>: <code>requirements.txt</code>에 버전을 고정하고, 올릴 때는 7장 검증을 다시 합니다.</li>
+      </ul>
+    </section>
+
+    <section id="g-ref">
+      <h2>10. 참고 문서</h2>
+      <ul>
+        <li><a href="https://docs.dynatrace.com/docs/observe/dynatrace-for-ai-observability/get-started/openllmetry" target="_blank" rel="noopener">Get started with OpenLLMetry and AI Observability — Dynatrace Docs</a></li>
+        <li><a href="https://docs.dynatrace.com/docs/observe/dynatrace-for-ai-observability/ai-observability-app" target="_blank" rel="noopener">AI Observability app — Dynatrace Docs</a></li>
+        <li><a href="https://docs.dynatrace.com/docs/observe/dynatrace-for-ai-observability/terms-and-concepts" target="_blank" rel="noopener">Terms and concepts about AI Observability — Dynatrace Docs</a></li>
+        <li><a href="https://github.com/open-telemetry/semantic-conventions-genai/blob/main/docs/gen-ai/gen-ai-agent-spans.md" target="_blank" rel="noopener">Semantic Conventions for GenAI agent spans — OpenTelemetry</a></li>
+        <li><a href="https://www.traceloop.com/docs/openllmetry/getting-started-ts" target="_blank" rel="noopener">OpenLLMetry Node.js getting started — Traceloop</a></li>
+      </ul>
+      <a class="back" href="/">← 데모로 돌아가서 직접 실행해 보기</a>
+    </section>
+  </article>
+</div>
+
+<footer>
+  <div class="wrap">데모용 문서입니다 · This product is not officially supported by Dynatrace.</div>
+</footer>
+
+<script src="/vendor/mermaid.min.js"></script>
+<script>
+  // Mermaid diagrams rendered from a locally bundled copy (works without internet)
+  try {
+    mermaid.initialize({ startOnLoad: false, theme: "neutral", fontFamily: "Noto Sans KR, sans-serif" });
+    mermaid.run({ querySelector: ".mermaid" });
+  } catch (e) {
+    document.querySelectorAll(".mermaid").forEach(el => { el.style.whiteSpace = "pre"; el.style.textAlign = "left"; });
+  }
+</script>
+<script>
+  // copy buttons for code blocks
+  document.querySelectorAll(".code").forEach(block => {
+    const btn = document.createElement("button");
+    btn.textContent = "복사";
+    btn.addEventListener("click", async () => {
+      try { await navigator.clipboard.writeText(block.querySelector("code").innerText); btn.textContent = "복사됨"; }
+      catch (e) { btn.textContent = "실패"; }
+      setTimeout(() => (btn.textContent = "복사"), 1500);
+    });
+    block.appendChild(btn);
+  });
+</script>
+</body>
+</html>
