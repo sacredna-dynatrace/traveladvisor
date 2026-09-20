@@ -78,6 +78,10 @@ spec:
                   name: dynatrace
               - secret:
                   name: bedrock
+              # provider / anthropic-key / anthropic-model (LLM_PROVIDER=anthropic)
+              - secret:
+                  name: llm
+                  optional: true
 ---
 apiVersion: v1
 kind: Service

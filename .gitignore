@@ -142,3 +142,4 @@ data/*
 
 # Ignore GitHub Pages Auto Generated HTML
 site/*
+__pycache__/

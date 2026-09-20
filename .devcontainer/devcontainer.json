@@ -77,6 +77,12 @@
 		"AWS_MODEL": {
 			"description": "Bedrock model or inference profile ID (Converse API), eg. us.amazon.nova-2-lite-v1:0"
 		},
+		"LLM_PROVIDER": {
+			"description": "LLM backend: bedrock (default) or anthropic"
+		},
+		"ANTHROPIC_API_KEY": {
+			"description": "Anthropic API key (only when LLM_PROVIDER=anthropic)"
+		},
 		"AWS_GUARDRAIL_ID": {
 			"description": "AWS Guardrail id to protect input and output prompt, eg. 5zwrmdlsra2e"
 		}

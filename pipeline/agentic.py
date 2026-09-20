@@ -1,5 +1,5 @@
 from models import Model
-from models.bedrock import Bedrock
+from models.factory import get_model
 
 from pipeline import Pipeline
 from tools.movie_sentence import movie_quote
@@ -72,7 +72,7 @@ Begin! Reminder to ALWAYS respond with a valid json blob of a single action. Use
             ]
         )
 
-        llm = Bedrock().langchain_llm()  # .bind_tools(self.tools)
+        llm = get_model().langchain_llm()  # .bind_tools(self.tools)
 
         agent = create_structured_chat_agent(llm, self.tools, prompt)
 

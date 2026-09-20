@@ -10,7 +10,7 @@ from opentelemetry.sdk.resources import Resource
 from traceloop.sdk import Traceloop
 from traceloop.sdk.decorators import workflow
 
-from models.bedrock import Bedrock
+from models.factory import get_model
 from pipeline.agentic import Agentic
 from pipeline.basic import Basic
 from pipeline.langchain import LangChain
@@ -61,7 +61,7 @@ Traceloop.init(
 
 ## Pipelines
 
-bedrock = Bedrock()
+bedrock = get_model()  # Bedrock or Anthropic, see LLM_PROVIDER
 basic = Basic()
 langchain = LangChain()
 agentic = Agentic()

@@ -17,6 +17,12 @@ kubectl -n travel-advisor create secret generic bedrock \
   --from-literal=guardrail=$AWS_GUARDRAIL_ID \
   --from-literal=guardrail-version=${AWS_GUARDRAIL_VERSION:-DRAFT}
 
+# LLM provider: "bedrock" (default) or "anthropic" (Claude via Anthropic API)
+kubectl -n travel-advisor create secret generic llm \
+  --from-literal=provider=${LLM_PROVIDER:-bedrock} \
+  --from-literal=anthropic-key=$ANTHROPIC_API_KEY \
+  --from-literal=anthropic-model=${ANTHROPIC_MODEL:-claude-haiku-4-5-20251001}
+
 kubectl -n travel-advisor create secret generic dynatrace --from-literal=token=$DT_TOKEN --from-literal=endpoint=$DT_ENDPOINT/api/v2/otlp
 
 # Deploy the application
