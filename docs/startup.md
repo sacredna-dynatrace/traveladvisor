@@ -5,7 +5,7 @@ Choose one of the following options to start the codespace:
 
 ### Launch Standard Version
 
-[![Open "standard" version in GitHub Codespaces](https://github.com/codespaces/badge.svg)](https://codespaces.new/dynatrace-perfclinics/obslab-llm-observability?ref=main){target="_blank"}
+[![Open in GitHub Codespaces](https://github.com/codespaces/badge.svg)](https://codespaces.new/sacredna-dynatrace/traveladvisor/tree/amazon-bedrock?quickstart=1){target="_blank"}
 
 ### Launch RAG Version
 

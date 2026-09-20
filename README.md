@@ -51,7 +51,7 @@ API Token에는 `openTelemetryTrace.ingest`, `metrics.ingest`, `logs.ingest` 스
 
 ## GitHub Codespaces에서 실행
 
-[![Open in GitHub Codespaces](https://github.com/codespaces/badge.svg)](https://github.com/codespaces/new/Dynatrace/obslab-llm-observability?ref=amazon-bedrock)
+[![Open in GitHub Codespaces](https://github.com/codespaces/badge.svg)](https://codespaces.new/sacredna-dynatrace/traveladvisor/tree/amazon-bedrock?quickstart=1)
 
 Codespace를 만들 때 `DT_ENDPOINT`, `DT_TOKEN`, `AWS_*`, `LLM_PROVIDER`, `ANTHROPIC_API_KEY`를 입력하면 `post-create.sh`가 kind 클러스터 생성부터 배포까지 자동으로 진행합니다. 배포가 끝나면 **포트** 탭에서 `30100`(travel-advisor User Interface)을 엽니다.
 
