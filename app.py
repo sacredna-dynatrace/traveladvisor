@@ -85,15 +85,28 @@ async def validation_exception_handler(request, exc):
 
 ####################################
 @app.get("/api/v1/completion")
-def submit_completion(prompt: str, pipeline: str):
+def submit_completion(prompt: str, pipeline: str, lang: str = "en"):
     with otel_tracer.start_as_current_span(
         name="/api/v1/completion", kind=trace.SpanKind.SERVER
     ) as span:
-        return submit_workflow(prompt, pipeline, span)
+        span.set_attribute("travel_advisor.pipeline", pipeline)
+        span.set_attribute("travel_advisor.language", lang)
+        return submit_workflow(prompt, pipeline, span, lang)
+
+
+@app.get("/api/v1/info")
+def info():
+    """Active LLM configuration, shown in the demo UI."""
+    return {
+        "provider": bedrock.provider_name,
+        "model": bedrock.model_name,
+        "embedding_model": bedrock.embedding_model_name,
+        "pipelines": list(pipelines.keys()),
+    }
 
 
 @workflow(name="travel_answer_generator")
-def submit_workflow(prompt: str, pipeline: str, span: trace.Span):
+def submit_workflow(prompt: str, pipeline: str, span: trace.Span, lang: str = "en"):
     clean_prompt = prompt.lower().strip()
     if clean_prompt:
         p = pipeline.lower()
@@ -103,7 +116,7 @@ def submit_workflow(prompt: str, pipeline: str, span: trace.Span):
                 detail=format_message("Sorry, the selected framework doesn't exist"),
             )
         pipeline = pipelines[p]
-        return pipeline.start(bedrock, clean_prompt)
+        return pipeline.start(bedrock, clean_prompt, lang)
     else:  # No, or invalid prompt given
         span.set_status(trace.status.StatusCode.ERROR, "Invalid prompt")
         return format_message("Sorry, the prompt provided is invalid")

@@ -18,6 +18,7 @@ from langchain_aws import ChatBedrockConverse
 #   eu.amazon.nova-2-lite-v1:0                        (AWS_DEFAULT_REGION=eu-central-1)
 #   global.amazon.nova-2-lite-v1:0                    (e.g. ap-northeast-2 / Seoul)
 #   us.anthropic.claude-haiku-4-5-20251001-v1:0       (Anthropic use-case form required once)
+PROVIDER_NAME = "Amazon Bedrock"
 DEFAULT_MODEL = "us.amazon.nova-2-lite-v1:0"
 DEFAULT_EMBEDDING_MODEL = "amazon.titan-embed-text-v2:0"
 DEFAULT_REGION = "us-east-1"
@@ -99,6 +100,18 @@ class Bedrock(Model):
         # output contains the blocked-message text configured on the guardrail.
         content = response["output"]["message"]["content"]
         return "".join(block.get("text", "") for block in content)
+
+    @property
+    def provider_name(self) -> str:
+        return PROVIDER_NAME
+
+    @property
+    def model_name(self) -> str:
+        return self.__model
+
+    @property
+    def embedding_model_name(self) -> str:
+        return self.__embedding_model
 
     def langchain_embedding(self):
         return self.__langchain_embedding

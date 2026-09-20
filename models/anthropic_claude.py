@@ -11,6 +11,7 @@ from langchain_community.embeddings.fastembed import FastEmbedEmbeddings
 # Claude via the Anthropic API (https://platform.claude.com/docs/en/models/overview).
 # Anthropic does not offer an embeddings API, so the RAG pipeline uses a small local
 # embedding model (FastEmbed / ONNX, pre-downloaded into the image at build time).
+PROVIDER_NAME = "Anthropic Claude"
 DEFAULT_MODEL = "claude-haiku-4-5-20251001"
 DEFAULT_EMBEDDING_MODEL = "BAAI/bge-small-en-v1.5"
 EMBEDDING_CACHE_DIR = os.environ.get("FASTEMBED_CACHE_PATH", "/opt/fastembed")
@@ -60,6 +61,18 @@ class AnthropicClaude(Model):
         return "".join(
             block.text for block in response.content if block.type == "text"
         )
+
+    @property
+    def provider_name(self) -> str:
+        return PROVIDER_NAME
+
+    @property
+    def model_name(self) -> str:
+        return self.__model
+
+    @property
+    def embedding_model_name(self) -> str:
+        return self.__embedding_model
 
     def langchain_embedding(self):
         return self.__langchain_embedding

@@ -1,507 +1,585 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="ko">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Your AI travel advisor</title>
-  <link rel="stylesheet" href="styles.360d4f28e3942a9ee9b5.css">
-  <style>h1[_ngcontent-aas-c67]{font-size:1.2em;color:#999;margin-bottom:0}h2[_ngcontent-aas-c67]{font-size:2em;margin-top:0;padding-top:0}nav[_ngcontent-aas-c67]   a[_ngcontent-aas-c67]{padding:5px 10px;text-decoration:none;margin-top:10px;display:inline-block;background-color:#eee;border-radius:4px}a[_ngcontent-aas-c67]:link, nav[_ngcontent-aas-c67]   a[_ngcontent-aas-c67]:visited{color:#607d8b}nav[_ngcontent-aas-c67]   a[_ngcontent-aas-c67]:hover{background-color:#cfd8dc}nav[_ngcontent-aas-c67]   a.active[_ngcontent-aas-c67], nav[_ngcontent-aas-c67]   a[_ngcontent-aas-c67]:hover{color:#039be5}</style>
-  <style>[_nghost-aas-c45]{display:block}.page[_ngcontent-aas-c45], [_nghost-aas-c45]{height:100%}.page[_ngcontent-aas-c45]{display:flex;flex-direction:column}.page-content[_ngcontent-aas-c45]{flex:1}</style>
-  <style>.hero-section[_ngcontent-aas-c46]{background:url(/images/hero-bg.jpg) no-repeat 50%;background-size:cover;padding:120px}.hero-wrapper[_ngcontent-aas-c46]{background:url(/images/hero-gradient.png) repeat-x;background-size:auto 100%}.hero-slogan-begin[_ngcontent-aas-c46], .hero-slogan-end[_ngcontent-aas-c46], .hero-title[_ngcontent-aas-c46]{display:block;text-align:center;letter-spacing:2px;margin:0;text-shadow:1px 1px 1px #aaa;color:#fff}.hero-title[_ngcontent-aas-c46]{font-size:1.8em}.hero-slogan-begin[_ngcontent-aas-c46]{font-size:6em;font-weight:400}.hero-slogan-end[_ngcontent-aas-c46]{font-size:4em;font-style:italic;font-weight:200}.hero-form[_ngcontent-aas-c46]{margin:70px 0 20px;display:flex;justify-content:space-between;flex-wrap:wrap}.hero-form-field[_ngcontent-aas-c46]{height:50px;margin-bottom:10px;flex:1 0 120px;min-width:100px}.hero-form-submit[_ngcontent-aas-c46]{min-width:80px}.hero-form-clear[_ngcontent-aas-c46]{min-width:60px}.hero-form-field[_ngcontent-aas-c46]     .ngui-auto-complete-wrapper, .hero-form-field[_ngcontent-aas-c46]   button[_ngcontent-aas-c46], .hero-form-field[_ngcontent-aas-c46]   input[_ngcontent-aas-c46]{display:block;width:100%;height:100%}.hero-form-input[_ngcontent-aas-c46]{padding:0 12px;font-size:1em;border-radius:3px;border:1px solid #ccc;box-sizing:border-box;outline:none}.hero-form-clear[_ngcontent-aas-c46]   button[_ngcontent-aas-c46], .hero-form-submit[_ngcontent-aas-c46]   button[_ngcontent-aas-c46]{box-sizing:border-box;border:0;border-radius:50px;background:#64c07a;color:#fff;cursor:pointer}.hero-form[_ngcontent-aas-c46]   input[class*=icon-][_ngcontent-aas-c46]{padding-left:36px;background-repeat:no-repeat;background-position:9px}.hero-form[_ngcontent-aas-c46]   input.icon-search[_ngcontent-aas-c46]{background-image:url(/images/icon-search.png)}.hero-form[_ngcontent-aas-c46]   input.icon-calendar[_ngcontent-aas-c46]{background-image:url(/images/icon-calendar.png)}.hero-form[_ngcontent-aas-c46]   input.icon-community[_ngcontent-aas-c46]{background-image:url(/images/icon-community.png)}@media (max-width:760px){.hero-section[_ngcontent-aas-c46]{padding:60px}}@media (max-width:520px){.hero-section[_ngcontent-aas-c46]{padding:40px 60px}.hero-form[_ngcontent-aas-c46]{margin-top:20px}}@media (max-width:360px){.hero-section[_ngcontent-aas-c46]{padding:30px}}@media (max-width:999px){.hero-slogan-begin[_ngcontent-aas-c46]{font-size:4em}.hero-slogan-end[_ngcontent-aas-c46]{font-size:3em}}@media (max-width:520px){.hero-slogan-begin[_ngcontent-aas-c46]{font-size:3em}.hero-slogan-end[_ngcontent-aas-c46]{font-size:2em}}@media (min-width:1000px){.hero-form-search[_ngcontent-aas-c46]{flex:2 0 240px}.hero-form-field[_ngcontent-aas-c46]{margin-left:10px}.hero-form-search[_ngcontent-aas-c46]{margin-left:0}}@media (min-width:640px) and (max-width:999px){.hero-form-field[_ngcontent-aas-c46]:nth-child(n+2){flex:0 0 32%}.hero-form-submit[_ngcontent-aas-c46]{margin:0 auto}.hero-form-search[_ngcontent-aas-c46]{flex:1 0 100%}.hero-form-field[_ngcontent-aas-c46]:nth-child(2){margin-left:0}}@media (min-width:460px) and (max-width:639px){.hero-form-field[_ngcontent-aas-c46]{flex:1 1 100%}.hero-form-submit[_ngcontent-aas-c46]{margin:0 25%}}@media (max-width:459px){.hero-form-field[_ngcontent-aas-c46]{flex:0 0 100%}}</style>
-  <style>.main-widget[_ngcontent-aas-c52]{display:block;margin:60px auto;max-width:1100px}.main-widget[_ngcontent-aas-c52]     h2{font-size:23px;color:#555}@media (max-width:1299px){.main-widget[_ngcontent-aas-c52]{margin:60px}}@media (max-width:519px){.main-widget[_ngcontent-aas-c52]{margin:40px}}</style>
-  <style>.footnote-wrapper[_ngcontent-aas-c53]{padding:12px;border-top:1px solid #ddd;border-bottom:1px solid #ddd}.footnote-section[_ngcontent-aas-c53]{display:flex;flex-wrap:wrap}.footnote-widget[_ngcontent-aas-c53]{padding:20px 60px;box-sizing:border-box}.footnote-widget[_ngcontent-aas-c53]   form[_ngcontent-aas-c53], .footnote-widget[_ngcontent-aas-c53]   h3[_ngcontent-aas-c53], .footnote-widget[_ngcontent-aas-c53]   p[_ngcontent-aas-c53]{margin-top:20px}.footnote-widget[_ngcontent-aas-c53]   h2[_ngcontent-aas-c53]{margin:20px 0;font-size:23px;color:#555}.footnote-widget[_ngcontent-aas-c53]   h3[_ngcontent-aas-c53]{font-size:17px}.footnote-widget[_ngcontent-aas-c53]   a[_ngcontent-aas-c53]{color:#64c07a}.footnote-widget[_ngcontent-aas-c53]   .recent-post-meta[_ngcontent-aas-c53]{color:#aaa;font-size:13px;margin:4px 0 12px}.subscribe-form[_ngcontent-aas-c53]{margin-top:20px;display:flex;justify-content:space-between;flex-wrap:wrap}.subscribe-form[_ngcontent-aas-c53]   button[_ngcontent-aas-c53], .subscribe-form[_ngcontent-aas-c53]   input[_ngcontent-aas-c53]{height:40px;box-sizing:border-box;outline:none}.subscribe-form[_ngcontent-aas-c53]   input[_ngcontent-aas-c53]{border-radius:3px;border:1px solid #ccc;padding:0 12px}.subscribe-form[_ngcontent-aas-c53]   button[_ngcontent-aas-c53]{border-radius:40px;border:1px solid #64c07a;background:#fff;color:#64c07a;white-space:nowrap}@media (min-width:1100px){.footnote-widget[_ngcontent-aas-c53]{flex:1 0 30%}.footnote-widget[_ngcontent-aas-c53]:first-child{border-left:0}.footnote-widget[_ngcontent-aas-c53]{border-left:1px solid #ddd}}@media (min-width:760px) and (max-width:1099px){.footnote-widget[_ngcontent-aas-c53]{flex:0 0 50%}.subscribe-section[_ngcontent-aas-c53]{order:3}.contacts-section[_ngcontent-aas-c53]{border-left:1px solid #ddd}}@media (max-width:759px){.footnote-widget[_ngcontent-aas-c53]{flex:0 0 100%}.subscribe-section[_ngcontent-aas-c53]{order:3}.footnote-widget[_ngcontent-aas-c53]:first-child{border-top:0}.footnote-widget[_ngcontent-aas-c53]{border-top:1px solid #ddd}}@media (max-width:519px){.footnote-widget[_ngcontent-aas-c53]{padding:20px}}@media (min-width:360px){.subscribe-form[_ngcontent-aas-c53]   input[_ngcontent-aas-c53]{width:60%}.subscribe-form[_ngcontent-aas-c53]   button[_ngcontent-aas-c53]{width:35%}}@media (max-width:359px){.subscribe-form[_ngcontent-aas-c53]   input[_ngcontent-aas-c53]{width:100%}.subscribe-form[_ngcontent-aas-c53]   button[_ngcontent-aas-c53]{width:50%;margin-top:10px}}</style>
-  <style>.header-section[_ngcontent-aas-c43]{height:65px;display:flex;justify-content:space-between;padding:0 20px}.logo[_ngcontent-aas-c43]{width:200px}.header-banner[_ngcontent-aas-c43]{display:flex;align-items:center;justify-content:center}.header-navigation[_ngcontent-aas-c43]{display:flex;flex-wrap:nowrap}.header-navigation[_ngcontent-aas-c43]   a[_ngcontent-aas-c43]{display:flex;align-items:center;padding:0 25px}.greeting[_ngcontent-aas-c43]{text-decoration:none}.header-navigation[_ngcontent-aas-c43]   a.active[_ngcontent-aas-c43]{color:#64c07a}@media (max-width:799px){.header-navigation[_ngcontent-aas-c43]:after{content:"";display:block;width:30px;background:linear-gradient(#fff,#fff 35%,#333 0,#333 40%,#fff 0,#fff 50%,#333 0,#333 55%,#fff 0,#fff 65%,#333 0,#333 70%,#fff 0,#fff)}.header-banner[_ngcontent-aas-c43]{box-sizing:border-box;padding:20px}.header-navigation[_ngcontent-aas-c43]   a[_ngcontent-aas-c43]{display:none}.header-navigation[_ngcontent-aas-c43]{padding:0 10px;cursor:pointer}.opened-menu[_ngcontent-aas-c43]   .header-navigation[_ngcontent-aas-c43]{padding:8px;flex-direction:column}.opened-menu[_ngcontent-aas-c43]   .header-navigation[_ngcontent-aas-c43]:after{display:none}.opened-menu[_ngcontent-aas-c43]   .header-navigation[_ngcontent-aas-c43]   a[_ngcontent-aas-c43]{display:block;background:#f9f9f9;z-index:1;padding:20px;justify-content:center}}</style>
-  <style>.footer-section[_ngcontent-aas-c44]{padding:55px 100px;display:flex;justify-content:space-between;flex-wrap:wrap}.footer-copyright[_ngcontent-aas-c44], .footer-links[_ngcontent-aas-c44]{line-height:25px}.footer-links[_ngcontent-aas-c44]   a[_ngcontent-aas-c44]{font-size:15px;white-space:nowrap;margin-right:5%}.footer-links[_ngcontent-aas-c44]   a[_ngcontent-aas-c44]:last-child{margin-right:0}.footer-copyright[_ngcontent-aas-c44]{font-size:13px;color:#ccc;margin:0}.footer-logo[_ngcontent-aas-c44]{width:200px}.social-links[_ngcontent-aas-c44]{display:flex}.social-links[_ngcontent-aas-c44]   a[_ngcontent-aas-c44]{display:flex;flex:0 0 50px;width:50px;height:50px;box-sizing:border-box;border:1px solid #aaa;border-radius:50%;font-size:0;justify-content:center;align-items:center;margin-left:10px}.social-links[_ngcontent-aas-c44]   a[_ngcontent-aas-c44]:first-child{margin-left:0}.social-links[_ngcontent-aas-c44]   a[_ngcontent-aas-c44]{opacity:.5}.social-links[_ngcontent-aas-c44]   a[_ngcontent-aas-c44]:hover{opacity:1}.social-links[_ngcontent-aas-c44]   a[class*=icon-][_ngcontent-aas-c44]:before{content:"";display:block;width:26px;height:26px;background-repeat:no-repeat;background-size:100%}.social-links[_ngcontent-aas-c44]   .icon-facebook[_ngcontent-aas-c44]:before{background-image:url(/images/icon-facebook.png)}.social-links[_ngcontent-aas-c44]   .icon-twitter[_ngcontent-aas-c44]:before{background-image:url(/images/icon-twitter.png)}.social-links[_ngcontent-aas-c44]   .icon-instagram[_ngcontent-aas-c44]:before{background-image:url(/images/icon-instagram.png)}@media (min-width:1000px){.footer-info[_ngcontent-aas-c44]{flex:1 0 50%;margin:0 45px}}@media (min-width:540px) and (max-width:999px){.footer-info[_ngcontent-aas-c44]{margin-top:20px;order:3;flex:0 0 100%}}@media (max-width:539px){.footer-section[_ngcontent-aas-c44]{padding:55px 40px}.footer-info[_ngcontent-aas-c44], .social-links[_ngcontent-aas-c44]{margin-top:20px;flex:0 0 100%}.footer-info[_ngcontent-aas-c44]{order:3}}@media (max-width:519px){.footer-section[_ngcontent-aas-c44]{padding:40px 30px}}</style>
-  <style>h2[_ngcontent-aas-c50]{font-size:23px;color:#555}.offer-widget[_ngcontent-aas-c50]{margin-top:20px}.offers-widget[_ngcontent-aas-c50]{display:flex;justify-content:space-between;flex-wrap:wrap}h2[_ngcontent-aas-c50]{flex:0 0 100%}@media (min-width:1000px){.offer-widget[_ngcontent-aas-c50]{flex:1 0 30%}.offer-widget[_ngcontent-aas-c50]:nth-child(n+3){margin-left:20px}}@media (min-width:700px) and (max-width:999px){.offer-widget[_ngcontent-aas-c50]{flex:1 0 40%}.offer-widget[_ngcontent-aas-c50]:nth-child(n+3){margin-left:40px}.inline[_ngcontent-aas-c50]   .offer-widget[_ngcontent-aas-c50]:last-child{display:none}}@media (max-width:699px){.offer-widget[_ngcontent-aas-c50]{flex:0 0 100%}.inline[_ngcontent-aas-c50]   .offer-widget[_ngcontent-aas-c50]:last-child{display:none}}</style>
-  <style>.recently-booked-widget[_ngcontent-aas-c51]{display:flex;justify-content:space-between;flex-wrap:wrap}.recently-booked-widget[_ngcontent-aas-c51]   h2[_ngcontent-aas-c51]{flex:0 0 100%}.book-widget[_ngcontent-aas-c51]{margin-top:20px}@media (min-width:1000px){.book-widget[_ngcontent-aas-c51]{flex:1 0 30%}.book-widget[_ngcontent-aas-c51]:nth-child(n+3){margin-left:20px}}@media (min-width:700px) and (max-width:999px){.book-widget[_ngcontent-aas-c51]{flex:0 0 48%}.book-widget[_ngcontent-aas-c51]:nth-child(3){margin-left:4%}}@media (max-width:699px){.book-widget[_ngcontent-aas-c51]{flex:0 0 100%}}.book-widget[_ngcontent-aas-c51]:after{content:"";clear:both;display:block;height:1px;margin-left:120px;background:#eee}.book-widget[_ngcontent-aas-c51]   app-offer-stat[_ngcontent-aas-c51]{margin:4px 5px 3px 0}.book-thumbnail[_ngcontent-aas-c51]{width:110px;float:left}.book-stats[_ngcontent-aas-c51]{margin-top:10px;display:flex;flex-wrap:wrap}@media (min-width:400px){.book-stats[_ngcontent-aas-c51], .book-title[_ngcontent-aas-c51]{margin-left:120px}}@media (max-width:399px){.book-title[_ngcontent-aas-c51]{margin-left:120px}.book-thumbnail[_ngcontent-aas-c51]{margin-bottom:10px}.book-stats[_ngcontent-aas-c51]{width:100%;flex-direction:column}.book-widget[_ngcontent-aas-c51]:after{margin:0}}</style>
-  <style>dp-date-picker{display:inline-block}dp-date-picker.dp-material .dp-picker-input{box-sizing:border-box;font-size:13px;height:30px;outline:none;width:213px}dp-date-picker .dp-input-container{position:relative}dp-date-picker .dp-selected{background:#106cc8;color:#fff}.dp-popup{background:#fff;border-bottom:1px solid rgba(0,0,0,.1);border-left:1px solid rgba(0,0,0,.1);border-right:1px solid rgba(0,0,0,.1);box-shadow:1px 1px 5px 0 rgba(0,0,0,.1);position:relative;white-space:nowrap;z-index:9999}</style>
-  <style>dp-day-calendar{display:inline-block}dp-day-calendar .dp-day-calendar-container{background:#fff}dp-day-calendar .dp-calendar-wrapper{border:1px solid #000;box-sizing:border-box}dp-day-calendar .dp-calendar-wrapper .dp-calendar-weekday:first-child{border-left:none}dp-day-calendar .dp-weekdays{font-size:15px;margin-bottom:5px}dp-day-calendar .dp-calendar-weekday{border-bottom:1px solid #000;border-left:1px solid #000;box-sizing:border-box;display:inline-block;text-align:center;width:30px}dp-day-calendar .dp-calendar-day{box-sizing:border-box;cursor:pointer;height:30px;width:30px}dp-day-calendar .dp-selected{background:#106cc8;color:#fff}dp-day-calendar .dp-next-month,dp-day-calendar .dp-prev-month{opacity:.5}dp-day-calendar .dp-hide-near-month .dp-next-month,dp-day-calendar .dp-hide-near-month .dp-prev-month{visibility:hidden}dp-day-calendar .dp-week-number{font-size:9px;position:absolute}dp-day-calendar.dp-material .dp-calendar-weekday{border:none;color:#7a7a7a;height:25px;line-height:25px;width:30px}dp-day-calendar.dp-material .dp-calendar-wrapper{border:1px solid #e0e0e0}dp-day-calendar.dp-material .dp-calendar-day,dp-day-calendar.dp-material .dp-calendar-month{background:#fff;border:none;border-radius:50%;box-sizing:border-box;outline:none}dp-day-calendar.dp-material .dp-calendar-day:hover,dp-day-calendar.dp-material .dp-calendar-month:hover{background:#e0e0e0}dp-day-calendar.dp-material .dp-selected{background:#106cc8;color:#fff}dp-day-calendar.dp-material .dp-selected:hover{background:#106cc8}dp-day-calendar.dp-material .dp-current-day{border:1px solid #106cc8}</style>
-  <style>dp-calendar-nav .dp-calendar-nav-container{position:relative}dp-calendar-nav .dp-calendar-nav-container,dp-calendar-nav .dp-nav-date-btn{border:1px solid #000;border-bottom:none;box-sizing:border-box;height:25px}dp-calendar-nav .dp-nav-btns-container{display:inline-block;position:absolute;right:5px;top:50%;transform:translateY(-50%)}dp-calendar-nav .dp-calendar-nav-container-left,dp-calendar-nav .dp-calendar-nav-container-right{display:inline-block}dp-calendar-nav .dp-calendar-nav-left,dp-calendar-nav .dp-calendar-nav-right,dp-calendar-nav .dp-calendar-secondary-nav-left,dp-calendar-nav .dp-calendar-secondary-nav-right{cursor:pointer;position:relative;width:16px}dp-calendar-nav .dp-calendar-nav-left,dp-calendar-nav .dp-calendar-nav-right{line-height:0}dp-calendar-nav .dp-calendar-nav-left:before,dp-calendar-nav .dp-calendar-nav-right:before{border-style:solid;border-width:2px 2px 0 0;content:"";display:inline-block;height:8px;position:relative;transform:rotate(45deg);vertical-align:baseline;width:8px}dp-calendar-nav .dp-calendar-secondary-nav-left,dp-calendar-nav .dp-calendar-secondary-nav-right{padding:0}dp-calendar-nav .dp-calendar-secondary-nav-left:after,dp-calendar-nav .dp-calendar-secondary-nav-left:before,dp-calendar-nav .dp-calendar-secondary-nav-right:after,dp-calendar-nav .dp-calendar-secondary-nav-right:before{border-style:solid;border-width:2px 2px 0 0;content:"";display:inline-block;height:8px;position:relative;transform:rotate(45deg);vertical-align:baseline;width:8px}dp-calendar-nav .dp-calendar-secondary-nav-left:before,dp-calendar-nav .dp-calendar-secondary-nav-right:before{right:-10px}dp-calendar-nav .dp-calendar-secondary-nav-right{left:auto;right:5px}dp-calendar-nav .dp-calendar-nav-left:before,dp-calendar-nav .dp-calendar-secondary-nav-left:after,dp-calendar-nav .dp-calendar-secondary-nav-left:before{border-style:solid;border-width:2px 2px 0 0;content:"";display:inline-block;height:8px;position:relative;transform:rotate(-135deg);vertical-align:baseline;width:8px}dp-calendar-nav .dp-calendar-secondary-nav-left:before{right:-10px}dp-calendar-nav .dp-nav-header{display:inline-block;font-size:13px;left:5px;position:absolute;top:50%;transform:translateY(-50%)}dp-calendar-nav .dp-nav-header-btn{cursor:pointer}dp-calendar-nav .dp-current-location-btn{background:rgba(0,0,0,.6);border:1px solid rgba(0,0,0,.6);border-radius:50%;box-shadow:inset 0 0 0 3px #fff;cursor:pointer;height:16px;outline:none;position:relative;top:-1px;vertical-align:middle;width:16px}dp-calendar-nav .dp-current-location-btn:hover{background:#000}dp-calendar-nav.dp-material .dp-calendar-nav-container{border:1px solid #e0e0e0;height:30px}dp-calendar-nav.dp-material .dp-calendar-nav-left,dp-calendar-nav.dp-material .dp-calendar-nav-right,dp-calendar-nav.dp-material .dp-calendar-secondary-nav-left,dp-calendar-nav.dp-material .dp-calendar-secondary-nav-right{background:#fff;border:none;font-size:16px;outline:none;padding:0}dp-calendar-nav.dp-material .dp-calendar-secondary-nav-left,dp-calendar-nav.dp-material .dp-calendar-secondary-nav-right{width:20px}dp-calendar-nav.dp-material .dp-nav-header-btn{background:#fff;border:none;height:20px;outline:none;width:80px}dp-calendar-nav.dp-material .dp-nav-header-btn:hover{background:rgba(0,0,0,.05)}dp-calendar-nav.dp-material .dp-nav-header-btn:active{background:rgba(0,0,0,.1)}</style>
-  <style>.stat-item[_ngcontent-aas-c48]{font-weight:500;line-height:20px;display:block;margin:5px 0;white-space:nowrap}.stat-item[class*=icon-][_ngcontent-aas-c48]{padding-left:30px;background-repeat:no-repeat;background-size:20px 20px;background-position:0}.stat-item.icon-calendar[_ngcontent-aas-c48]{background-image:url(/images/icon-calendar-dark.png)}.stat-item.icon-price[_ngcontent-aas-c48]{background-image:url(/images/icon-price-dark.png)}.stat-item.icon-rating[_ngcontent-aas-c48]{background-image:url(/images/icon-rating-star-dark.png)}</style>
-  <style>h3[_ngcontent-aas-c49]{font-size:24px;font-weight:200;margin:10px 0 20px}app-gallery[_ngcontent-aas-c49]{height:260px}@media (max-width:420px){app-gallery[_ngcontent-aas-c49]{height:200px}}</style>
-  <style>app-gallery{display:block}.gallery[_ngcontent-aas-c47]{width:100%;height:100%;background:rgba(53,53,53,.2)}</style>
+  <title>easyTravel AI 여행 어드바이저 · Dynatrace AI Observability Demo</title>
+  <link rel="icon" href="/favicon.ico">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700;800&display=swap" rel="stylesheet">
   <style>
-    .thumbs-up {
-      fill: #d9d9e3; /* Default color */
-      transition: fill 0.3s ease;
-      cursor: pointer;
+    :root {
+      --green: #3fae5a;
+      --green-dark: #2b8a44;
+      --navy: #13233f;
+      --ink: #1f2937;
+      --muted: #6b7280;
+      --line: #e5e7eb;
+      --bg: #f6f8fb;
+      --card: #ffffff;
+      --purple: #6f2da8;   /* Dynatrace accent */
+      --teal: #0d9488;
+      --amber: #d97706;
+      --radius: 14px;
     }
-
-    .thumbs-up:hover {
-      fill: #0f0f0f; /* Color on hover */
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      margin: 0; background: var(--bg); color: var(--ink);
+      font-family: "Noto Sans KR", "Apple SD Gothic Neo", "Malgun Gothic", system-ui, sans-serif;
+      line-height: 1.6; word-break: keep-all;
     }
+    a { color: var(--green-dark); }
+    .wrap { max-width: 1120px; margin: 0 auto; padding: 0 20px; }
 
-    .display-none[_ngcontent-aas-c37] {
-    display: none !important; }
+    /* ---------- header ---------- */
+    header.top {
+      position: sticky; top: 0; z-index: 10; background: rgba(255,255,255,.95);
+      backdrop-filter: blur(6px); border-bottom: 1px solid var(--line);
+    }
+    header.top .wrap { display: flex; align-items: center; gap: 16px; height: 64px; }
+    header.top img { height: 30px; }
+    .demo-badge {
+      font-size: 12px; font-weight: 700; color: #fff; background: var(--purple);
+      padding: 4px 10px; border-radius: 999px; white-space: nowrap;
+    }
+    header nav { margin-left: auto; display: flex; gap: 20px; font-size: 14px; }
+    header nav a { color: var(--ink); text-decoration: none; font-weight: 500; }
+    header nav a:hover { color: var(--green-dark); }
+    @media (max-width: 760px) { header nav { display: none; } }
+    @media (max-width: 480px) { header.top img { height: 24px; } .demo-badge { font-size: 10.5px; padding: 3px 8px; } }
+    .config-chip { max-width: 100%; }
+    .config-chip #configText { overflow-wrap: anywhere; }
 
-  .fs-container[_ngcontent-aas-c37] {
-    display: block;
-    cursor: pointer;
-    position: fixed;
-    z-index: 1;
-    top: 16px;
-    left: 16px;
-    width: 46px;
-    height: 46px;
-    text-align: center;
-    padding: 0;
-    background-color: rgba(0, 0, 0, 0.2);
-    -webkit-transition: all .2s ease-in-out;
-    transition: all .2s ease-in-out; }
-    .fs-container[_ngcontent-aas-c37]:hover {
-      background-color: rgba(0, 0, 0, 0.33); }
-    .fs-container[_ngcontent-aas-c37]   .arrow-exitfs[_ngcontent-aas-c37] {
-      display: block;
-      width: 30px;
-      height: 30px;
-      background: transparent;
-      border-top: 2px solid #f2f2f2;
-      -webkit-transition: all .2s ease-in-out;
-      transition: all .2s ease-in-out; }
-      .fs-container[_ngcontent-aas-c37]   .arrow-exitfs.prev[_ngcontent-aas-c37] {
-        -webkit-transform: rotate(-45deg);
-                transform: rotate(-45deg);
-        position: relative;
-        left: 18px;
-        top: 18px; }
-      .fs-container[_ngcontent-aas-c37]   .arrow-exitfs[_ngcontent-aas-c37]:after {
-        content: '';
-        width: 30px;
-        height: 30px;
-        background: transparent;
-        border-top: 2px solid #f2f2f2;
-        -webkit-transform: rotate(90deg);
-                transform: rotate(90deg);
-        position: absolute;
-        left: -15px;
-        top: -17px; }
+    /* ---------- hero ---------- */
+    .hero {
+      background: linear-gradient(180deg, rgba(10,25,45,.55), rgba(10,25,45,.75)), url(/images/hero-bg.jpg) center/cover no-repeat;
+      color: #fff; padding: 56px 0 64px;
+    }
+    .hero .eyebrow { font-size: 14px; letter-spacing: .08em; opacity: .9; font-weight: 700; }
+    .hero h1 { font-size: clamp(30px, 5vw, 48px); margin: 6px 0 10px; font-weight: 800; }
+    .hero p.lead { font-size: 17px; max-width: 760px; margin: 0 0 22px; opacity: .95; }
+    .config-chip {
+      display: inline-flex; align-items: center; gap: 8px; font-size: 13px;
+      background: rgba(255,255,255,.14); border: 1px solid rgba(255,255,255,.35);
+      padding: 6px 12px; border-radius: 999px; margin-bottom: 24px;
+    }
+    .dot { width: 8px; height: 8px; border-radius: 50%; background: #9ca3af; }
+    .dot.ok { background: #4ade80; box-shadow: 0 0 0 3px rgba(74,222,128,.25); }
 
-  .slideshow-container.slideshow-container-fs[_ngcontent-aas-c37] {
-    position: fixed;
-    left: 0;
-    top: 0;
-    width: 100%;
-    height: 100%; }
+    .panel {
+      background: rgba(255,255,255,.97); color: var(--ink); border-radius: var(--radius);
+      padding: 22px; box-shadow: 0 20px 40px rgba(0,0,0,.25);
+    }
+    .panel h2 { font-size: 15px; margin: 0 0 10px; color: var(--navy); }
+    .pipes { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-bottom: 18px; }
+    @media (max-width: 760px) { .pipes { grid-template-columns: 1fr; } }
+    .pipe input { position: absolute; opacity: 0; pointer-events: none; }
+    .pipe label {
+      display: block; height: 100%; cursor: pointer; border: 2px solid var(--line);
+      border-radius: 12px; padding: 12px 14px; transition: .15s;
+    }
+    .pipe label:hover { border-color: #b7dfc2; }
+    .pipe input:checked + label { border-color: var(--green); background: #f0faf3; }
+    .pipe input:focus-visible + label { outline: 3px solid #93c5fd; }
+    .pipe .name { font-weight: 800; font-size: 15px; }
+    .pipe .tag { font-size: 11px; font-weight: 700; color: var(--green-dark); background: #e3f5e8; padding: 2px 8px; border-radius: 999px; margin-left: 6px; }
+    .pipe .desc { font-size: 13px; color: var(--muted); margin-top: 4px; }
 
-  .slideshow-container[_ngcontent-aas-c37] {
-    position: relative;
-    display: block;
-    margin: auto;
-    height: 100%;
-    width: 100%;
-    overflow: hidden; }
-    .slideshow-container[_ngcontent-aas-c37]   .hide-slide[_ngcontent-aas-c37] {
-      visibility: hidden;
-      position: absolute;
-      top: -100vw;
-      left: -100vw;
-      opacity: 0; }
-    .slideshow-container[_ngcontent-aas-c37]   .slides[_ngcontent-aas-c37] {
-      -ms-touch-action: pan-y;
-          touch-action: pan-y;
-      position: absolute;
-      top: 0;
-      height: 100%;
-      width: 100%;
-      visibility: visible;
-      opacity: 1;
-      display: block; }
-      .slideshow-container[_ngcontent-aas-c37]   .slides.selected[_ngcontent-aas-c37] {
-        left: 0; }
-      .slideshow-container[_ngcontent-aas-c37]   .slides.left-slide[_ngcontent-aas-c37] {
-        left: -100%; }
-      .slideshow-container[_ngcontent-aas-c37]   .slides.right-slide[_ngcontent-aas-c37] {
-        left: 100%; }
-      .slideshow-container[_ngcontent-aas-c37]   .slides.slide-in-left[_ngcontent-aas-c37] {
-        left: 0;
-        -webkit-animation: slideInLeft 0.5s cubic-bezier(0.42, 0, 0.58, 1);
-                animation: slideInLeft 0.5s cubic-bezier(0.42, 0, 0.58, 1); }
-      .slideshow-container[_ngcontent-aas-c37]   .slides.slide-in-right[_ngcontent-aas-c37] {
-        left: 0;
-        -webkit-animation: slideInRight 0.5s cubic-bezier(0.42, 0, 0.58, 1);
-                animation: slideInRight 0.5s cubic-bezier(0.42, 0, 0.58, 1); }
-      .slideshow-container[_ngcontent-aas-c37]   .slides.slide-out-left[_ngcontent-aas-c37] {
-        left: -100%;
-        -webkit-animation: slideOutLeft 0.5s cubic-bezier(0.42, 0, 0.58, 1);
-                animation: slideOutLeft 0.5s cubic-bezier(0.42, 0, 0.58, 1); }
-      .slideshow-container[_ngcontent-aas-c37]   .slides.slide-out-right[_ngcontent-aas-c37] {
-        left: 100%;
-        -webkit-animation: slideOutRight 0.5s cubic-bezier(0.42, 0, 0.58, 1);
-                animation: slideOutRight 0.5s cubic-bezier(0.42, 0, 0.58, 1); }
-      .slideshow-container[_ngcontent-aas-c37]   .slides.link[_ngcontent-aas-c37] {
-        cursor: pointer; }
-      .slideshow-container[_ngcontent-aas-c37]   .slides[_ngcontent-aas-c37]:not(.link) {
-        cursor: default; }
-    .slideshow-container[_ngcontent-aas-c37]   .caption[_ngcontent-aas-c37] {
-      position: absolute;
-      bottom: 0;
-      padding: 10px;
-      width: 100%; }
-    .slideshow-container[_ngcontent-aas-c37]   .arrow-container[_ngcontent-aas-c37] {
-      display: -webkit-box;
-      display: -ms-flexbox;
-      display: flex;
-      -webkit-box-align: center;
-          -ms-flex-align: center;
-              align-items: center;
-      -webkit-box-pack: center;
-          -ms-flex-pack: center;
-              justify-content: center;
-      position: absolute;
-      top: 0;
-      height: 100%;
-      width: auto;
-      cursor: pointer;
-      background-size: 100%;
-      background-image: -webkit-gradient(linear, left top, left bottom, from(transparent), to(transparent));
-      background-image: linear-gradient(transparent, transparent);
-      z-index: 100;
-      -webkit-user-select: none;
-         -moz-user-select: none;
-          -ms-user-select: none;
-              user-select: none; }
-      .slideshow-container[_ngcontent-aas-c37]   .arrow-container[_ngcontent-aas-c37]:before {
-        display: block;
-        height: 100%;
-        position: absolute;
-        top: 0;
-        left: 0;
-        opacity: 0;
-        width: 100%;
-        z-index: -100;
-        -webkit-transition: opacity 0.45s;
-        transition: opacity 0.45s; }
-      .slideshow-container[_ngcontent-aas-c37]   .arrow-container.prev[_ngcontent-aas-c37] {
-        left: 0; }
-        .slideshow-container[_ngcontent-aas-c37]   .arrow-container.prev[_ngcontent-aas-c37]:before {
-          background-image: -webkit-gradient(linear, right top, left top, from(transparent), to(rgba(0, 0, 0, 0.75)));
-          background-image: linear-gradient(to left, transparent, rgba(0, 0, 0, 0.75));
-          content: ''; }
-      .slideshow-container[_ngcontent-aas-c37]   .arrow-container.next[_ngcontent-aas-c37] {
-        right: 0; }
-        .slideshow-container[_ngcontent-aas-c37]   .arrow-container.next[_ngcontent-aas-c37]:before {
-          background-image: -webkit-gradient(linear, left top, right top, from(transparent), to(rgba(0, 0, 0, 0.75)));
-          background-image: linear-gradient(to right, transparent, rgba(0, 0, 0, 0.75));
-          content: ''; }
-      .slideshow-container[_ngcontent-aas-c37]   .arrow-container[_ngcontent-aas-c37]   .arrow[_ngcontent-aas-c37] {
-        display: block;
-        margin: auto;
-        width: 30px;
-        height: 30px;
-        background: transparent;
-        border-top: 2px solid #f2f2f2;
-        border-left: 2px solid #f2f2f2;
-        -webkit-transition: all .2s ease-in-out;
-        transition: all .2s ease-in-out;
-        -webkit-user-select: none;
-           -moz-user-select: none;
-            -ms-user-select: none;
-                user-select: none; }
-        .slideshow-container[_ngcontent-aas-c37]   .arrow-container[_ngcontent-aas-c37]   .arrow[_ngcontent-aas-c37]:before {
-          display: block;
-          height: 200%;
-          width: 200%;
-          margin-left: -50%;
-          margin-top: -50%;
-          content: "";
-          -webkit-transform: rotate(45deg);
-                  transform: rotate(45deg); }
-        .slideshow-container[_ngcontent-aas-c37]   .arrow-container[_ngcontent-aas-c37]   .arrow.prev[_ngcontent-aas-c37] {
-          -webkit-transform: rotate(-45deg);
-                  transform: rotate(-45deg);
-          position: relative;
-          left: 20px;
-          margin-right: 10px; }
-        .slideshow-container[_ngcontent-aas-c37]   .arrow-container[_ngcontent-aas-c37]   .arrow.next[_ngcontent-aas-c37] {
-          -webkit-transform: rotate(135deg);
-                  transform: rotate(135deg);
-          position: relative;
-          right: 20px;
-          margin-left: 10px; }
-    .slideshow-container[_ngcontent-aas-c37]   .slick-dots[_ngcontent-aas-c37] {
-      display: block;
-      bottom: 15px;
-      z-index: 1;
-      text-align: center;
-      position: absolute;
-      padding: 0;
-      left: 0;
-      right: 0;
-      margin: 0 auto; }
-      .slideshow-container[_ngcontent-aas-c37]   .slick-dots[_ngcontent-aas-c37]   li[_ngcontent-aas-c37] {
-        display: inline;
-        margin: 0;
-        padding: 0; }
-        .slideshow-container[_ngcontent-aas-c37]   .slick-dots[_ngcontent-aas-c37]   li[_ngcontent-aas-c37]   button[_ngcontent-aas-c37] {
-          border: none;
-          background: none;
-          text-indent: -9999px;
-          font-size: 0;
-          width: 20px;
-          height: 20px;
-          outline: none;
-          position: relative;
-          z-index: 1;
-          cursor: pointer; }
-          .slideshow-container[_ngcontent-aas-c37]   .slick-dots[_ngcontent-aas-c37]   li[_ngcontent-aas-c37]   button[_ngcontent-aas-c37]:before {
-            content: '';
-            width: 4px;
-            height: 4px;
-            background: var(--dot-color, #FFF);
-            border-radius: 4px;
-            display: block;
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            -webkit-transform: translate(-50%, -50%);
-                    transform: translate(-50%, -50%);
-            opacity: .7;
-            -webkit-transition: all .5s ease-out;
-            transition: all .5s ease-out; }
-        .slideshow-container[_ngcontent-aas-c37]   .slick-dots[_ngcontent-aas-c37]   li.slick-active[_ngcontent-aas-c37]   button[_ngcontent-aas-c37]:before {
-          -webkit-transform: translate(-50%, -50%) scale(1.4);
-                  transform: translate(-50%, -50%) scale(1.4);
-          opacity: 1; }
+    .row { display: flex; gap: 10px; flex-wrap: wrap; align-items: stretch; }
+    .row input[type=text] {
+      flex: 1 1 320px; min-width: 0; height: 52px; font-size: 16px; padding: 0 14px 0 42px;
+      border: 1px solid #cbd5e1; border-radius: 10px; outline: none;
+      background: #fff url(/images/icon-search.png) no-repeat 14px center;
+    }
+    .row input[type=text]:focus { border-color: var(--green); box-shadow: 0 0 0 3px rgba(63,174,90,.2); }
+    .lang { display: flex; border: 1px solid #cbd5e1; border-radius: 10px; overflow: hidden; height: 52px; }
+    .lang input { position: absolute; opacity: 0; pointer-events: none; }
+    .lang label { display: flex; align-items: center; padding: 0 14px; cursor: pointer; font-size: 14px; font-weight: 500; color: var(--muted); }
+    .lang input:checked + label { background: var(--navy); color: #fff; }
+    button.primary {
+      height: 52px; padding: 0 28px; border: 0; border-radius: 10px; background: var(--green);
+      color: #fff; font-size: 16px; font-weight: 700; cursor: pointer; font-family: inherit;
+    }
+    button.primary:hover { background: var(--green-dark); }
+    button.primary:disabled { background: #9ca3af; cursor: wait; }
+    .chips { margin-top: 12px; display: flex; gap: 8px; flex-wrap: wrap; align-items: center; font-size: 13px; color: var(--muted); }
+    .chip {
+      border: 1px solid var(--line); background: #fff; border-radius: 999px; padding: 4px 12px;
+      cursor: pointer; font-size: 13px; font-family: inherit; color: var(--ink);
+    }
+    .chip:hover { border-color: var(--green); color: var(--green-dark); }
+    .chip.warn { border-color: #fcd34d; background: #fffbeb; }
 
-  @media screen and (min-width: 768px) {
-    .slideshow-container[_ngcontent-aas-c37]   .arrow-container[_ngcontent-aas-c37]:hover:before {
-      opacity: 1; }
-    .slideshow-container[_ngcontent-aas-c37]   .arrow-container[_ngcontent-aas-c37]:hover   .arrow[_ngcontent-aas-c37] {
-      border-width: 4px; }
-    .slideshow-container[_ngcontent-aas-c37]   .arrow-container[_ngcontent-aas-c37]   .arrow[_ngcontent-aas-c37]:hover {
-      border-width: 4px; } }
+    /* ---------- result ---------- */
+    .result { margin-top: 18px; display: none; }
+    .result.show { display: block; }
+    .result .meta { display: flex; gap: 8px; flex-wrap: wrap; font-size: 12px; margin-bottom: 10px; }
+    .result .meta span { background: #eef2f7; color: var(--navy); padding: 3px 10px; border-radius: 999px; font-weight: 500; }
+    .answer { background: #fff; border: 1px solid var(--line); border-left: 4px solid var(--green); border-radius: 10px; padding: 16px 18px; font-size: 16px; }
+    .answer h1, .answer h2, .answer h3 { font-size: 18px; margin: 0 0 8px; }
+    .answer p { margin: 0 0 8px; }
+    .answer ul { margin: 0 0 8px; padding-left: 20px; }
+    .answer.error { border-left-color: #dc2626; background: #fef2f2; }
+    .feedback { display: flex; align-items: center; gap: 10px; margin-top: 10px; font-size: 13px; color: var(--muted); }
+    .feedback button { border: 1px solid var(--line); background: #fff; border-radius: 8px; padding: 4px 10px; cursor: pointer; font-size: 16px; }
+    .feedback button:hover { border-color: var(--green); }
+    .loading { display: flex; align-items: center; gap: 10px; color: var(--muted); font-size: 14px; }
+    .spinner { width: 20px; height: 20px; border: 3px solid #d1fae5; border-top-color: var(--green); border-radius: 50%; animation: spin 1s linear infinite; }
+    @keyframes spin { to { transform: rotate(360deg); } }
 
-  @-webkit-keyframes slideInRight {
-    0% {
-      left: -100%; }
-    100% {
-      left: 0; } }
+    /* ---------- sections ---------- */
+    section.block { padding: 56px 0 8px; }
+    section.block h2.title { font-size: 26px; margin: 0 0 6px; color: var(--navy); font-weight: 800; }
+    section.block p.sub { margin: 0 0 24px; color: var(--muted); }
+    .grid { display: grid; gap: 16px; }
+    .g4 { grid-template-columns: repeat(4, 1fr); }
+    .g3 { grid-template-columns: repeat(3, 1fr); }
+    @media (max-width: 980px) { .g4 { grid-template-columns: repeat(2, 1fr); } .g3 { grid-template-columns: 1fr; } }
+    @media (max-width: 560px) { .g4 { grid-template-columns: 1fr; } }
+    .card { background: var(--card); border: 1px solid var(--line); border-radius: var(--radius); padding: 20px; }
+    .card .icon { width: 40px; height: 40px; border-radius: 10px; display: grid; place-items: center; font-size: 20px; margin-bottom: 10px; }
+    .card h3 { margin: 0 0 6px; font-size: 16px; }
+    .card p { margin: 0; font-size: 14px; color: var(--muted); }
 
-  @keyframes slideInRight {
-    0% {
-      left: -100%; }
-    100% {
-      left: 0; } }
+    .steps { counter-reset: step; display: grid; gap: 14px; grid-template-columns: repeat(4, 1fr); }
+    @media (max-width: 980px) { .steps { grid-template-columns: repeat(2, 1fr); } }
+    @media (max-width: 560px) { .steps { grid-template-columns: 1fr; } }
+    .step { position: relative; background: #fff; border: 1px solid var(--line); border-radius: var(--radius); padding: 20px 18px 18px; }
+    .step::before {
+      counter-increment: step; content: counter(step);
+      position: absolute; top: -14px; left: 18px; width: 28px; height: 28px; border-radius: 50%;
+      background: var(--green); color: #fff; font-weight: 800; display: grid; place-items: center; font-size: 14px;
+    }
+    .step h3 { margin: 4px 0 6px; font-size: 15px; }
+    .step p { margin: 0; font-size: 13.5px; color: var(--muted); }
+    code { background: #eef2f7; padding: 1px 6px; border-radius: 5px; font-size: 12.5px; color: var(--navy); }
 
-  @-webkit-keyframes slideInLeft {
-    0% {
-      left: 100%; }
-    100% {
-      left: 0; } }
+    table.cmp { width: 100%; border-collapse: collapse; background: #fff; border-radius: var(--radius); overflow: hidden; border: 1px solid var(--line); font-size: 14px; }
+    table.cmp th, table.cmp td { padding: 12px 14px; text-align: left; border-bottom: 1px solid var(--line); vertical-align: top; }
+    table.cmp th { background: var(--navy); color: #fff; font-weight: 700; }
+    table.cmp tr:last-child td { border-bottom: 0; }
+    table.cmp td:first-child { font-weight: 800; white-space: nowrap; }
+    .tbl-scroll { overflow-x: auto; }
 
-  @keyframes slideInLeft {
-    0% {
-      left: 100%; }
-    100% {
-      left: 0; } }
+    .arch { background: #fff; border: 1px solid var(--line); border-radius: var(--radius); padding: 16px; }
+    .arch svg { width: 100%; height: auto; display: block; }
+    .legend { display: flex; gap: 18px; flex-wrap: wrap; font-size: 13px; color: var(--muted); margin-top: 10px; padding: 0 6px; }
+    .legend i { display: inline-block; width: 22px; height: 0; border-top: 3px solid; vertical-align: middle; margin-right: 6px; }
 
-  @-webkit-keyframes slideOutRight {
-    0% {
-      left: 0; }
-    100% {
-      left: -100%; } }
+    .tip { border-left: 4px solid var(--amber); }
+    .tip.dt { border-left-color: var(--purple); }
+    .tip.gr { border-left-color: var(--teal); }
 
-  @keyframes slideOutRight {
-    0% {
-      left: 0; }
-    100% {
-      left: -100%; } }
-
-  @-webkit-keyframes slideOutLeft {
-    0% {
-      left: 0; }
-    100% {
-      left: 100%; } }
-
-  @keyframes slideOutLeft {
-    0% {
-      left: 0; }
-    100% {
-      left: 100%; } }
-
-  .loader[_ngcontent-aas-c37] {
-    position: absolute;
-    left: 50%;
-    margin-left: -20px;
-    top: 50%;
-    margin-top: -20px;
-    border: 5px solid #f3f3f3;
-    border-top: 5px solid #555;
-    border-radius: 50%;
-    width: 50px;
-    height: 50px;
-    -webkit-animation: spin 1s linear infinite;
-            animation: spin 1s linear infinite; }
-
-  @-webkit-keyframes spin {
-    0% {
-      -webkit-transform: rotate(0deg);
-              transform: rotate(0deg); }
-    100% {
-      -webkit-transform: rotate(360deg);
-              transform: rotate(360deg); } }
-
-  @keyframes spin {
-    0% {
-      -webkit-transform: rotate(0deg);
-              transform: rotate(0deg); }
-    100% {
-      -webkit-transform: rotate(360deg);
-              transform: rotate(360deg); } }</style>
+    footer { margin-top: 64px; padding: 28px 0 40px; border-top: 1px solid var(--line); font-size: 13px; color: var(--muted); background: #fff; }
+    footer .wrap { display: flex; gap: 16px; justify-content: space-between; flex-wrap: wrap; align-items: center; }
+    footer img { height: 24px; opacity: .8; }
+  </style>
 </head>
 <body>
 
-<app-root _nghost-aas-c67="" ng-version="10.2.4"><router-outlet _ngcontent-aas-c67=""></router-outlet><app-dashboard
-    _nghost-aas-c54=""><app-main-layout _ngcontent-aas-c54="" class="landing-page" _nghost-aas-c45="">
-      <div _ngcontent-aas-c45="" class="page"><app-header _ngcontent-aas-c45="" _nghost-aas-c43="">
-          <header _ngcontent-aas-c43="" class="page-section header-section"><a _ngcontent-aas-c43="" routerlink="/home"
-              class="header-banner" href="/"><img _ngcontent-aas-c43=""
-                src="/images/easytravel-logo.svg" class="logo"></a>
-            <nav _ngcontent-aas-c43="" class="header-navigation"><!----><a _ngcontent-aas-c43=""
-                id="header:specialoffers" routerlink="/home" class="active" href="/">Special offers</a><a
-                _ngcontent-aas-c43="" id="header:contact" routerlink="/" href="/">Contact</a><a
-                _ngcontent-aas-c43="" id="header:login" routerlink="/" href="/">Login</a><!----><a
-                _ngcontent-aas-c43="" id="header:signup" routerlink="/" href="/">Sign
-                up</a><!----><!----></nav>
-          </header>
-        </app-header>
-        <div _ngcontent-aas-c45="" class="page-content"><app-hero _ngcontent-aas-c54="" _nghost-aas-c46="">
-            <div _ngcontent-aas-c46="" class="hero-wrapper">
-              <section _ngcontent-aas-c46="" class="page-section hero-section">
-                <h1 _ngcontent-aas-c46="" class="hero-title">easyTravel</h1><span _ngcontent-aas-c46=""
-                  class="hero-slogan-begin">AI</span><span _ngcontent-aas-c46=""
-                  class="hero-slogan-end">travel advisor.</span>
-                <form id="advisorForm" _ngcontent-aas-c46="" novalidate="" class="hero-form ng-untouched ng-pristine ng-valid">
-                  <div style="display: block; width: 100%; padding-bottom: 10px;">
-                    <label for="pipeline" style="display: block;color: #fff;">Pipeline</label>
-                    <select name="pipeline" id="pipeline">
-                      <option>None</option>
-                      <option>RAG</option>
-                    </select>
-                  </div>
-                  <div _ngcontent-aas-c46="" class="hero-form-field hero-form-search">
-                    <div class="ngui-auto-complete-wrapper" style="position: relative;"><input _ngcontent-aas-c46=""
-                        type="text" id="prompt" placeholder="Asia" name="prompt" auto-complete="" autocomplete="off"
-                        value-formatter="name" list-formatter="name"
-                        class="hero-form-input icon-search ng-untouched ng-pristine ng-valid"></div><!---->
-                  </div>
-                  <div _ngcontent-aas-c46="" class="hero-form-field hero-form-submit"><button _ngcontent-aas-c46=""
-                      name="submit" type="submit" class="hero-form-input">Advise</button></div>
-                </form>
-              </section>
-            </div>
-          </app-hero><app-home-main _ngcontent-aas-c54="" _nghost-aas-c52="">
-            <main _ngcontent-aas-c52="" class="page-section main-section">
-              <div _ngcontent-aas-c52="" class="main-widget"><app-offers-list _ngcontent-aas-c52=""
-                  title="Travel advise" inline="true" type="specialOffers" _nghost-aas-c50="">
-                  <div _ngcontent-aas-c50="" class="inline offers-widget">
-                    <!--Travel advise appears here-->
-                    <h2 _ngcontent-aas-c50="" id="advise"></h2>
-                  </div>
-                </app-offers-list></div><app-recently-booked _ngcontent-aas-c52="" class="main-widget"
-                _nghost-aas-c51="">
-                
-              
-              <div _ngcontent-aas-c52="" class="main-widget"><app-offers-list _ngcontent-aas-c52=""
-                  title="Activities and Experiences" inline="true" type="activityOffers" _nghost-aas-c50="">
-                  <div _ngcontent-aas-c50="" class="inline offers-widget">
-                    
-                  </div>
-                </app-offers-list></div>
-            </main>
-          </app-home-main><app-footnote _ngcontent-aas-c54="" _nghost-aas-c53="">
-            <div _ngcontent-aas-c53="" class="footnote-wrapper">
-              <aside _ngcontent-aas-c53="" class="page-section footnote-section">
-                <div _ngcontent-aas-c53="" class="footnote-widget recent-post-section">
-                  <h2 _ngcontent-aas-c53="">Latest blog entry</h2>
-                  <h3 _ngcontent-aas-c53="">A Uniquely Kiwi Adventure</h3>
-                  <p _ngcontent-aas-c53="" class="recent-post-meta">Apr 5, 2017, by Kathleen Peterson</p>
-                  <p _ngcontent-aas-c53="">Today's post is brought to you by easyTravel Student Ambassador, Kathleen
-                    Peterson. Kathleen is a student at Michigan State... <!----></p>
-                </div>
-                <div _ngcontent-aas-c53="" class="footnote-widget subscribe-section">
-                  <h2 _ngcontent-aas-c53="">Never miss a story</h2>
-                  <p _ngcontent-aas-c53="">Sign up for our Newsletter and stay up to date!</p>
-                  <form _ngcontent-aas-c53="" novalidate="" class="subscribe-form ng-untouched ng-pristine ng-valid">
-                    <input _ngcontent-aas-c53="" placeholder="your@email.com"><button _ngcontent-aas-c53=""
-                      type="submit">Sign up</button></form>
-                </div>
-                <div _ngcontent-aas-c53="" class="footnote-widget contacts-section">
-                  <h2 _ngcontent-aas-c53="">Where to find us</h2>
-                  <p _ngcontent-aas-c53="">Am Fünfundzwanziger Turm 20, 4020 Linz, Austria</p>
-                  <address _ngcontent-aas-c53=""><a _ngcontent-aas-c53="" href="#">emeainfo@dynatrace.com</a></address>
-                  <p _ngcontent-aas-c53="">Omnilogy Sp. z.o.o. Al. Grunwaldzka 411 80-309 Gdansk, Poland</p>
-                  <address _ngcontent-aas-c53=""><a _ngcontent-aas-c53="" href="#">dynatrace@omnilogy.com</a></address>
-                </div>
-              </aside>
-            </div>
-          </app-footnote></div><app-footer _ngcontent-aas-c45="" _nghost-aas-c44="">
-          <footer _ngcontent-aas-c44="" class="page-section footer-section">
-            <div _ngcontent-aas-c44=""><img _ngcontent-aas-c44="" src="/images/easytravel-logo.svg"
-                class="footer-logo"></div>
-            <div _ngcontent-aas-c44="" class="footer-info">
-              <nav _ngcontent-aas-c44="" class="footer-links"><a _ngcontent-aas-c44="" id="footer:contact"
-                  routerlink="/contact" href="/">Contact us</a><a _ngcontent-aas-c44=""
-                  id="footer:terms">Terms &amp; conditions</a><a _ngcontent-aas-c44="" id="footer:policy"
-                  routerlink="/home" href="/">Privacy policy</a></nav>
-              <p _ngcontent-aas-c44="" class="footer-copyright">© 2023 Dynatrace. All rights reserved.</p>
-            </div>
-            <address _ngcontent-aas-c44="" class="social-links"><a _ngcontent-aas-c44="" id="fotter:facebook"
-                href="https://www.facebook.com/Dynatrace/" target="_blank" class="icon-facebook">facebook</a><a
-                _ngcontent-aas-c44="" id="footer:twitter" href="https://twitter.com/Dynatrace" target="_blank"
-                class="icon-twitter">twitter</a><a _ngcontent-aas-c44="" id="footer:instagram"
-                href="https://www.instagram.com/dynatrace/" target="_blank" class="icon-instagram">instagram</a>
-            </address>
-          </footer>
-        </app-footer>
+<header class="top">
+  <div class="wrap">
+    <img src="/images/easytravel-logo.svg" alt="easyTravel">
+    <span class="demo-badge">Dynatrace AI Observability Demo</span>
+    <nav>
+      <a href="#try">체험하기</a>
+      <a href="#about">데모 소개</a>
+      <a href="#howto">사용 방법</a>
+      <a href="#pipelines">Pipeline 비교</a>
+      <a href="#architecture">아키텍처</a>
+    </nav>
+  </div>
+</header>
+
+<!-- ================= HERO / TRY ================= -->
+<div class="hero" id="try">
+  <div class="wrap">
+    <div class="eyebrow">easyTravel · AI Travel Advisor</div>
+    <h1>AI 여행 어드바이저</h1>
+    <p class="lead">
+      여행지를 입력하면 LLM이 여행 조언을 만들어 줍니다.
+      이때 발생하는 모든 LLM 호출, RAG 검색, AI Agent의 Tool 실행이
+      <b>OpenTelemetry</b>로 <b>Dynatrace</b>에 실시간 수집되어,
+      응답 시간 · Token 사용량 · 오류를 한눈에 확인할 수 있습니다.
+    </p>
+    <div class="config-chip" id="configChip"><span class="dot" id="configDot"></span><span id="configText">LLM 연결 정보를 확인하는 중…</span></div>
+
+    <div class="panel">
+      <form id="advisorForm" novalidate>
+        <h2>① Pipeline 선택</h2>
+        <div class="pipes">
+          <div class="pipe">
+            <input type="radio" name="pipeline" id="p-none" value="none" checked>
+            <label for="p-none">
+              <span class="name">None</span><span class="tag">기본</span>
+              <div class="desc">LLM을 한 번 직접 호출해 답변을 생성합니다.</div>
+            </label>
+          </div>
+          <div class="pipe">
+            <input type="radio" name="pipeline" id="p-rag" value="rag">
+            <label for="p-rag">
+              <span class="name">RAG</span><span class="tag">문서 검색</span>
+              <div class="desc">사내 여행 문서를 Vector 검색한 뒤, 그 내용을 근거로 LLM이 답변합니다.</div>
+            </label>
+          </div>
+          <div class="pipe">
+            <input type="radio" name="pipeline" id="p-agentic" value="agentic">
+            <label for="p-agentic">
+              <span class="name">Agentic</span><span class="tag">AI Agent</span>
+              <div class="desc">AI Agent가 도시 검증·여행 조언 등 Tool을 스스로 골라 여러 단계로 실행합니다.</div>
+            </label>
+          </div>
+        </div>
+
+        <h2>② 여행지 입력 후 실행</h2>
+        <div class="row">
+          <input type="text" id="prompt" name="prompt" placeholder="여행지를 입력하세요 (예: Sydney, Bali, Seoul)" autocomplete="off" required>
+          <div class="lang" role="radiogroup" aria-label="응답 언어">
+            <input type="radio" name="lang" id="l-ko" value="ko" checked><label for="l-ko">한국어</label>
+            <input type="radio" name="lang" id="l-en" value="en"><label for="l-en">English</label>
+          </div>
+          <button type="submit" class="primary" id="submitBtn">추천 받기</button>
+        </div>
+        <div class="chips">
+          빠른 입력:
+          <button type="button" class="chip" data-city="Seoul">Seoul</button>
+          <button type="button" class="chip" data-city="Bali">Bali</button>
+          <button type="button" class="chip" data-city="Las Vegas">Las Vegas</button>
+          <button type="button" class="chip warn" data-city="Sydney" data-pipe="rag" title="RAG 문서에 일부러 잘못된 정보가 들어 있는 도시">Sydney ⚠ RAG 데모</button>
+        </div>
+      </form>
+
+      <div class="result" id="result">
+        <div class="meta" id="resultMeta"></div>
+        <div class="answer" id="advise"></div>
+        <div class="feedback" id="feedback">
+          답변이 도움이 되었나요?
+          <button type="button" onclick="sendFeedback('thumbsUp')" title="좋아요">👍</button>
+          <button type="button" onclick="sendFeedback('thumbsDown')" title="별로예요">👎</button>
+          <span id="feedbackMsg"></span>
+        </div>
       </div>
-    </app-main-layout></app-dashboard><!----></app-root>
+    </div>
+  </div>
+</div>
+
+<!-- ================= ABOUT ================= -->
+<section class="block" id="about">
+  <div class="wrap">
+    <h2 class="title">이 데모는 무엇을 보여주나요?</h2>
+    <p class="sub">생성형 AI 애플리케이션은 “왜 느린지, 왜 비싼지, 왜 이상한 답을 했는지” 파악하기 어렵습니다. Dynatrace는 LLM 앱의 전 구간을 하나의 Trace로 연결해 보여줍니다.</p>
+    <div class="grid g4">
+      <div class="card">
+        <div class="icon" style="background:#ede9fe">🔍</div>
+        <h3>End-to-End 가시성</h3>
+        <p>사용자 요청 → 애플리케이션 → Vector 검색 → LLM 호출까지 하나의 Distributed Trace로 추적합니다.</p>
+      </div>
+      <div class="card">
+        <div class="icon" style="background:#dcfce7">💰</div>
+        <h3>Token · 비용 관리</h3>
+        <p>요청별 입력/출력 Token, Model, 응답 시간을 수집해 비용과 성능을 정량적으로 관리합니다.</p>
+      </div>
+      <div class="card">
+        <div class="icon" style="background:#fef3c7">🧭</div>
+        <h3>RAG · Agent 흐름 분석</h3>
+        <p>어떤 문서가 검색됐는지, Agent가 어떤 Tool을 몇 번 호출했는지 단계별로 확인합니다.</p>
+      </div>
+      <div class="card">
+        <div class="icon" style="background:#ccfbf1">🛡️</div>
+        <h3>품질 · 안전성</h3>
+        <p>오류, Guardrail 차단, 사용자 피드백(👍/👎)을 함께 수집해 AI 답변 품질을 모니터링합니다.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= HOW TO ================= -->
+<section class="block" id="howto">
+  <div class="wrap">
+    <h2 class="title">사용 방법</h2>
+    <p class="sub">4단계면 AI 애플리케이션 Observability를 직접 확인할 수 있습니다.</p>
+    <div class="steps">
+      <div class="step">
+        <h3>Pipeline 선택</h3>
+        <p><b>None</b>(단순 호출), <b>RAG</b>(문서 검색), <b>Agentic</b>(AI Agent) 중 하나를 고릅니다.</p>
+      </div>
+      <div class="step">
+        <h3>여행지 입력 &amp; 실행</h3>
+        <p>도시 이름을 입력하고 <b>추천 받기</b>를 누릅니다. 응답 언어는 한국어/English 중 선택할 수 있습니다.</p>
+      </div>
+      <div class="step">
+        <h3>Dynatrace에서 Trace 확인</h3>
+        <p><b>Distributed Tracing</b>에서 서비스 <code>travel-advisor</code>를 선택하면 LLM Span과 Token 정보를 볼 수 있습니다.</p>
+      </div>
+      <div class="step">
+        <h3>AI Observability 대시보드</h3>
+        <p><b>AI Observability</b> 앱 또는 Dashboard에서 Model별 요청 수, 지연 시간, Token 사용량 추이를 확인합니다.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= PIPELINES ================= -->
+<section class="block" id="pipelines">
+  <div class="wrap">
+    <h2 class="title">Pipeline 비교</h2>
+    <p class="sub">같은 질문이라도 Pipeline에 따라 내부 동작과 Dynatrace에 보이는 Trace 구조가 달라집니다.</p>
+    <div class="tbl-scroll">
+      <table class="cmp">
+        <thead><tr><th>Pipeline</th><th>동작 방식</th><th>LLM 호출 수</th><th>Dynatrace에서 볼 포인트</th></tr></thead>
+        <tbody>
+          <tr>
+            <td>None</td>
+            <td>프롬프트를 LLM에 한 번 전달해 답변 생성</td>
+            <td>1회</td>
+            <td>LLM Span 1개 · 응답 시간 · 입력/출력 Token</td>
+          </tr>
+          <tr>
+            <td>RAG</td>
+            <td>여행 문서(<code>destinations/*.html</code>)를 Embedding → FAISS Vector 검색 → 검색 결과를 근거로 LLM 답변</td>
+            <td>1회 + Embedding</td>
+            <td>Retriever/Embedding 단계와 LLM 단계의 시간 비중, 검색된 Context가 답변에 준 영향</td>
+          </tr>
+          <tr>
+            <td>Agentic</td>
+            <td>LangChain AI Agent가 <code>valid_city</code>, <code>travel_advice</code> 등 Tool을 선택·반복 실행</td>
+            <td>여러 번 (가변)</td>
+            <td>Agent Workflow → Tool → LLM으로 이어지는 다단계 Trace, 반복 횟수와 누적 Token</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</section>
+
+<!-- ================= ARCHITECTURE ================= -->
+<section class="block" id="architecture">
+  <div class="wrap">
+    <h2 class="title">구성 아키텍처</h2>
+    <p class="sub">GitHub Codespaces 안의 Kubernetes(kind) 클러스터에서 동작하며, OpenTelemetry 데이터를 Dynatrace로 직접 전송합니다.</p>
+    <div class="arch">
+      <svg viewBox="0 0 1080 470" role="img" aria-label="Travel Advisor 아키텍처 다이어그램" font-family="Noto Sans KR, Malgun Gothic, sans-serif">
+        <defs>
+          <marker id="ah" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#475569"/></marker>
+          <marker id="ahp" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#6f2da8"/></marker>
+        </defs>
+
+        <!-- Codespaces / kind boundary -->
+        <rect x="170" y="20" width="520" height="430" rx="16" fill="#f8fafc" stroke="#94a3b8" stroke-dasharray="6 5"/>
+        <text x="186" y="44" font-size="13" font-weight="700" fill="#475569">GitHub Codespaces · kind Kubernetes Cluster</text>
+
+        <!-- User -->
+        <rect x="16" y="170" width="130" height="96" rx="12" fill="#fff" stroke="#cbd5e1"/>
+        <text x="81" y="205" text-anchor="middle" font-size="26">🧑‍💻</text>
+        <text x="81" y="232" text-anchor="middle" font-size="14" font-weight="700" fill="#13233f">사용자</text>
+        <text x="81" y="251" text-anchor="middle" font-size="12" fill="#64748b">Web Browser</text>
+
+        <!-- Pod -->
+        <rect x="200" y="62" width="460" height="370" rx="14" fill="#fff" stroke="#3fae5a" stroke-width="2"/>
+        <text x="218" y="88" font-size="15" font-weight="800" fill="#13233f">travel-advisor Pod</text>
+        <text x="218" y="107" font-size="12" fill="#64748b">Python 3.11 · FastAPI · NodePort 30100</text>
+
+        <!-- pipelines -->
+        <rect x="218" y="122" width="424" height="64" rx="10" fill="#f0faf3" stroke="#bbe5c7"/>
+        <text x="232" y="143" font-size="12" font-weight="700" fill="#2b8a44">Pipeline</text>
+        <rect x="232" y="151" width="120" height="26" rx="6" fill="#fff" stroke="#bbe5c7"/><text x="292" y="169" text-anchor="middle" font-size="12" fill="#1f2937">None</text>
+        <rect x="370" y="151" width="120" height="26" rx="6" fill="#fff" stroke="#bbe5c7"/><text x="430" y="169" text-anchor="middle" font-size="12" fill="#1f2937">RAG (LangChain)</text>
+        <rect x="508" y="151" width="120" height="26" rx="6" fill="#fff" stroke="#bbe5c7"/><text x="568" y="169" text-anchor="middle" font-size="12" fill="#1f2937">Agentic (Tools)</text>
+
+        <!-- RAG store -->
+        <rect x="218" y="200" width="206" height="118" rx="10" fill="#fffbeb" stroke="#fcd34d"/>
+        <text x="232" y="222" font-size="12" font-weight="700" fill="#b45309">RAG 지식 저장소</text>
+        <text x="232" y="244" font-size="12" fill="#1f2937">• 여행 문서 destinations/*.html</text>
+        <text x="232" y="264" font-size="12" fill="#1f2937">• Embedding Model</text>
+        <text x="244" y="282" font-size="11" fill="#64748b" id="svgEmbed">FastEmbed / Titan Embeddings</text>
+        <text x="232" y="304" font-size="12" fill="#1f2937">• FAISS Vector Store</text>
+
+        <!-- Model client -->
+        <rect x="436" y="200" width="206" height="118" rx="10" fill="#eff6ff" stroke="#93c5fd"/>
+        <text x="450" y="222" font-size="12" font-weight="700" fill="#1d4ed8">LLM Client</text>
+        <text x="450" y="244" font-size="12" fill="#1f2937">• LLM_PROVIDER 로 선택</text>
+        <text x="450" y="264" font-size="12" fill="#1f2937">• Anthropic SDK</text>
+        <text x="450" y="284" font-size="12" fill="#1f2937">• AWS SDK (boto3)</text>
+        <text x="450" y="304" font-size="11" fill="#64748b">Messages API / Converse API</text>
+
+        <!-- OTel SDK -->
+        <rect x="218" y="332" width="424" height="84" rx="10" fill="#f5f0fb" stroke="#c4b5fd"/>
+        <text x="232" y="355" font-size="12" font-weight="700" fill="#6f2da8">OpenTelemetry 자동 계측 — Traceloop OpenLLMetry SDK</text>
+        <text x="232" y="377" font-size="12" fill="#1f2937">FastAPI · LangChain · LLM 호출을 Span으로 자동 생성</text>
+        <text x="232" y="397" font-size="12" fill="#1f2937">gen_ai.* 속성: Model · Token · 응답 시간 · 오류</text>
+
+        <!-- LLM providers -->
+        <rect x="730" y="62" width="330" height="170" rx="14" fill="#fff" stroke="#cbd5e1"/>
+        <text x="748" y="88" font-size="15" font-weight="800" fill="#13233f">LLM Provider</text>
+        <rect x="748" y="102" width="294" height="54" rx="10" fill="#fff7ed" stroke="#fdba74" id="svgAnthropic"/>
+        <text x="764" y="125" font-size="13" font-weight="700" fill="#9a3412">Anthropic Claude</text>
+        <text x="764" y="145" font-size="11" fill="#64748b">Messages API · claude-haiku-4-5</text>
+        <rect x="748" y="164" width="294" height="54" rx="10" fill="#fff" stroke="#cbd5e1" id="svgBedrock"/>
+        <text x="764" y="187" font-size="13" font-weight="700" fill="#1f2937">Amazon Bedrock</text>
+        <text x="764" y="207" font-size="11" fill="#64748b">Converse API · Amazon Nova · Guardrails</text>
+
+        <!-- Dynatrace -->
+        <rect x="730" y="262" width="330" height="188" rx="14" fill="#f5f0fb" stroke="#6f2da8" stroke-width="2"/>
+        <text x="748" y="288" font-size="15" font-weight="800" fill="#6f2da8">Dynatrace</text>
+        <text x="748" y="314" font-size="12" fill="#1f2937">• Grail — Trace · Metric · Log 통합 저장</text>
+        <text x="748" y="338" font-size="12" fill="#1f2937">• Distributed Tracing — 요청 단위 분석</text>
+        <text x="748" y="362" font-size="12" fill="#1f2937">• AI Observability — Model · Token · 비용</text>
+        <text x="748" y="386" font-size="12" fill="#1f2937">• Davis AI — 이상 탐지 · 근본 원인 분석</text>
+        <text x="748" y="410" font-size="12" fill="#1f2937">• Dashboards · Notebooks</text>
+        <text x="748" y="436" font-size="11" fill="#64748b">OTLP Endpoint: /api/v2/otlp</text>
+
+        <!-- arrows -->
+        <line x1="146" y1="218" x2="198" y2="218" stroke="#475569" stroke-width="2" marker-end="url(#ah)"/>
+        <text x="150" y="208" font-size="11" fill="#475569">HTTP</text>
+        <line x1="644" y1="258" x2="728" y2="160" stroke="#475569" stroke-width="2" marker-end="url(#ah)"/>
+        <text x="662" y="196" font-size="11" fill="#475569">HTTPS</text>
+        <path d="M644 374 L700 374 L700 356 L728 356" fill="none" stroke="#6f2da8" stroke-width="2.5" stroke-dasharray="7 4" marker-end="url(#ahp)"/>
+        <text x="650" y="398" font-size="11" fill="#6f2da8" font-weight="700">OTLP/HTTP</text>
+      </svg>
+      <div class="legend">
+        <span><i style="border-color:#475569"></i>요청 흐름</span>
+        <span><i style="border-color:#6f2da8;border-top-style:dashed"></i>Telemetry (Trace · Metric · Log)</span>
+        <span id="activeLegend"></span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= DEMO TIPS ================= -->
+<section class="block" id="tips">
+  <div class="wrap">
+    <h2 class="title">데모 시나리오 팁</h2>
+    <p class="sub">고객 앞에서 보여주기 좋은 장면들입니다.</p>
+    <div class="grid g3">
+      <div class="card tip">
+        <h3>① RAG 품질 이슈 추적</h3>
+        <p><b>Sydney</b>를 <b>None</b>과 <b>RAG</b>로 각각 실행해 보세요. RAG 문서에 일부러 잘못된 정보(“인구 237명, 낙타로만 이동”)가 들어 있어 답변이 달라집니다. Trace에서 검색된 Context를 확인해 원인을 찾는 과정을 시연합니다.</p>
+      </div>
+      <div class="card tip dt">
+        <h3>② Agent 비용 · 지연 분석</h3>
+        <p><b>Agentic</b>으로 실행하면 LLM이 여러 번 호출됩니다. None 대비 누적 Token과 응답 시간이 얼마나 늘어나는지 Distributed Tracing에서 비교합니다.</p>
+      </div>
+      <div class="card tip gr">
+        <h3>③ 오류 · 장애 가시화</h3>
+        <p>LLM 인증 오류나 Guardrail 차단이 발생하면 해당 Span이 오류로 표시되고 예외 메시지가 함께 기록됩니다. Davis AI가 이상 징후로 탐지하는 흐름을 설명합니다.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap">
+    <div><img src="/images/easytravel-logo.svg" alt="easyTravel"></div>
+    <div>
+      데모용 애플리케이션입니다 · This product is not officially supported by Dynatrace.<br>
+      Source: <a href="https://github.com/dynatrace/obslab-llm-observability" target="_blank" rel="noopener">dynatrace/obslab-llm-observability</a>
+    </div>
+  </div>
+</footer>
 
 <script>
-  const thumbs = "<svg onclick='thumbsUp()' class='thumbs-up' xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' width='30' height='30'><path d='M12.1318 2.50389C12.3321 2.15338 12.7235 1.95768 13.124 2.00775L13.5778 2.06447C16.0449 2.37286 17.636 4.83353 16.9048 7.20993L16.354 8.99999H17.0722C19.7097 8.99999 21.6253 11.5079 20.9313 14.0525L19.5677 19.0525C19.0931 20.7927 17.5124 22 15.7086 22H6C4.34315 22 3 20.6568 3 19V12C3 10.3431 4.34315 8.99999 6 8.99999H8C8.25952 8.99999 8.49914 8.86094 8.6279 8.63561L12.1318 2.50389ZM10 20H15.7086C16.6105 20 17.4008 19.3964 17.6381 18.5262L19.0018 13.5262C19.3488 12.2539 18.391 11 17.0722 11H15C14.6827 11 14.3841 10.8494 14.1956 10.5941C14.0071 10.3388 13.9509 10.0092 14.0442 9.70591L14.9932 6.62175C15.3384 5.49984 14.6484 4.34036 13.5319 4.08468L10.3644 9.62789C10.0522 10.1742 9.56691 10.5859 9 10.8098V19C9 19.5523 9.44772 20 10 20ZM7 11V19C7 19.3506 7.06015 19.6872 7.17071 20H6C5.44772 20 5 19.5523 5 19V12C5 11.4477 5.44772 11 6 11H7Z' ></path></svg><svg onclick='thumbsDown()' class='thumbs-up' xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' width='30' height='30'><path fill-rule='evenodd' clip-rule='evenodd' d='M11.8727 21.4961C11.6725 21.8466 11.2811 22.0423 10.8805 21.9922L10.4267 21.9355C7.95958 21.6271 6.36855 19.1665 7.09975 16.7901L7.65054 15H6.93226C4.29476 15 2.37923 12.4921 3.0732 9.94753L4.43684 4.94753C4.91145 3.20728 6.49209 2 8.29589 2H18.0045C19.6614 2 21.0045 3.34315 21.0045 5V12C21.0045 13.6569 19.6614 15 18.0045 15H16.0045C15.745 15 15.5054 15.1391 15.3766 15.3644L11.8727 21.4961ZM14.0045 4H8.29589C7.39399 4 6.60367 4.60364 6.36637 5.47376L5.00273 10.4738C4.65574 11.746 5.61351 13 6.93226 13H9.00451C9.32185 13 9.62036 13.1506 9.8089 13.4059C9.99743 13.6612 10.0536 13.9908 9.96028 14.2941L9.01131 17.3782C8.6661 18.5002 9.35608 19.6596 10.4726 19.9153L13.6401 14.3721C13.9523 13.8258 14.4376 13.4141 15.0045 13.1902V5C15.0045 4.44772 14.5568 4 14.0045 4ZM17.0045 13V5C17.0045 4.64937 16.9444 4.31278 16.8338 4H18.0045C18.5568 4 19.0045 4.44772 19.0045 5V12C19.0045 12.5523 18.5568 13 18.0045 13H17.0045Z' ></path></svg>";
+  const PIPE_LABEL = { none: "None", rag: "RAG", agentic: "Agentic" };
+  let lastPrompt = "";
 
-  function thumbsUp() {
-    var searchTerm = document.getElementById("prompt").value;
-    fetch("/api/v1/thumbsUp?prompt=" + searchTerm, { method: "GET"});
-  }
-
-  function thumbsDown() {
-
-    var searchTerm = document.getElementById("prompt").value;
-    fetch("/api/v1/thumbsDown?prompt=" + searchTerm, { method: "GET"});
-  }
-
-  document.getElementById("advisorForm").addEventListener("submit", function(event) {
-      event.preventDefault(); // Prevents the default form submission
-      // set the loading indicator
-      document.getElementById("advise").innerHTML = "<h1 _ngcontent-aas-c46='' class='hero-title'><img width='400' src='/images/loader-animation-freebie.gif'></h1>";
-      // Get form data
-      var formData = new FormData(event.target);
-
-      // Build URL parameters string from form data
-      var urlParams = new URLSearchParams(formData).toString();
-
-      // Append the URL parameters to the endpoint URL
-      var endpointUrl = "/api/v1/completion?" + urlParams;
-
-      // Make an AJAX request to the backend endpoint
-      fetch(endpointUrl, {
-          method: "GET"
-      })
-      .then(response => response.json())
-      .then(data => {
-          // Handle the response from the backend
-          console.log(data);
-          document.getElementById("advise").innerHTML = data.message + thumbs;
-      })
-      .catch(error => {
-          console.error("Error:", error);
-      });
-
-      // clear the submit form
-      //document.getElementById("prompt").value = "";
+  // ---- active LLM configuration ----
+  fetch("/api/v1/info").then(r => r.ok ? r.json() : Promise.reject(r.status)).then(info => {
+    document.getElementById("configDot").classList.add("ok");
+    document.getElementById("configText").textContent =
+      `연결된 LLM: ${info.provider} · ${info.model}  |  Embedding: ${info.embedding_model}`;
+    const anth = /anthropic/i.test(info.provider);
+    const on = document.getElementById(anth ? "svgAnthropic" : "svgBedrock");
+    const off = document.getElementById(anth ? "svgBedrock" : "svgAnthropic");
+    on.setAttribute("stroke", "#3fae5a"); on.setAttribute("stroke-width", "3"); on.setAttribute("fill", "#f0faf3");
+    off.setAttribute("stroke", "#cbd5e1"); off.setAttribute("stroke-width", "1"); off.setAttribute("fill", "#fff");
+    document.getElementById("svgEmbed").textContent = info.embedding_model;
+    document.getElementById("activeLegend").innerHTML =
+      `<i style="border-color:#3fae5a"></i>현재 사용 중: <b>${escapeHtml(info.provider)}</b>`;
+  }).catch(() => {
+    document.getElementById("configText").textContent = "LLM 연결 정보를 가져오지 못했습니다";
   });
-</script>
 
+  // ---- quick chips ----
+  document.querySelectorAll(".chip").forEach(chip => chip.addEventListener("click", () => {
+    document.getElementById("prompt").value = chip.dataset.city;
+    if (chip.dataset.pipe) document.getElementById("p-" + chip.dataset.pipe).checked = true;
+    document.getElementById("advisorForm").requestSubmit();
+  }));
+
+  // ---- submit ----
+  document.getElementById("advisorForm").addEventListener("submit", async (event) => {
+    event.preventDefault();
+    const form = new FormData(event.target);
+    const prompt = (form.get("prompt") || "").trim();
+    if (!prompt) { document.getElementById("prompt").focus(); return; }
+    const pipeline = form.get("pipeline"), lang = form.get("lang");
+    lastPrompt = prompt;
+
+    const result = document.getElementById("result");
+    const advise = document.getElementById("advise");
+    const btn = document.getElementById("submitBtn");
+    result.classList.add("show");
+    document.getElementById("feedback").style.display = "none";
+    document.getElementById("feedbackMsg").textContent = "";
+    document.getElementById("resultMeta").innerHTML = "";
+    advise.className = "answer";
+    advise.innerHTML = `<div class="loading"><div class="spinner"></div>${PIPE_LABEL[pipeline]} Pipeline으로 답변을 생성하는 중입니다…</div>`;
+    btn.disabled = true;
+
+    const t0 = performance.now();
+    try {
+      const params = new URLSearchParams({ prompt, pipeline, lang });
+      const res = await fetch("/api/v1/completion?" + params.toString());
+      const ms = Math.round(performance.now() - t0);
+      let data = null;
+      try { data = await res.json(); } catch (e) { /* non-JSON error */ }
+      if (!res.ok) throw new Error((data && data.message) || `HTTP ${res.status}`);
+      advise.innerHTML = renderMarkdown(data.message || "");
+      setMeta(pipeline, lang, prompt, ms);
+      document.getElementById("feedback").style.display = "flex";
+    } catch (err) {
+      const ms = Math.round(performance.now() - t0);
+      advise.className = "answer error";
+      advise.innerHTML = `<b>답변 생성에 실패했습니다.</b><br>LLM 연결 설정(API Key, Model, 권한)을 확인해 주세요. 이 오류도 Dynatrace Trace에 오류 Span으로 기록됩니다.<br><small>${escapeHtml(String(err.message || err))}</small>`;
+      setMeta(pipeline, lang, prompt, ms);
+    } finally {
+      btn.disabled = false;
+    }
+  });
+
+  function setMeta(pipeline, lang, prompt, ms) {
+    document.getElementById("resultMeta").innerHTML =
+      `<span>여행지: ${escapeHtml(prompt)}</span><span>Pipeline: ${PIPE_LABEL[pipeline]}</span>` +
+      `<span>응답 언어: ${lang === "ko" ? "한국어" : "English"}</span><span>응답 시간: ${(ms / 1000).toFixed(1)}초</span>`;
+  }
+
+  function sendFeedback(kind) {
+    fetch(`/api/v1/${kind}?prompt=` + encodeURIComponent(lastPrompt));
+    document.getElementById("feedbackMsg").textContent = "피드백이 기록되었습니다. (Dynatrace Log/Trace로 수집)";
+  }
+
+  function escapeHtml(s) {
+    return s.replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+  }
+
+  // Minimal Markdown → HTML (headings, bold, italics, lists, paragraphs)
+  function renderMarkdown(md) {
+    const lines = escapeHtml(md).split(/\r?\n/);
+    let html = "", inList = false, para = [];
+    const inline = t => t.replace(/\*\*(.+?)\*\*/g, "<b>$1</b>").replace(/(^|[^*])\*(?!\s)(.+?)\*/g, "$1<i>$2</i>");
+    const flush = () => { if (para.length) { html += `<p>${inline(para.join(" "))}</p>`; para = []; } };
+    for (const raw of lines) {
+      const line = raw.trim();
+      const h = line.match(/^(#{1,6})\s+(.*)$/);
+      const li = line.match(/^(?:[-*•]|\d+\.)\s+(.*)$/);
+      if (h) { flush(); if (inList) { html += "</ul>"; inList = false; } html += `<h3>${inline(h[2])}</h3>`; }
+      else if (li) { flush(); if (!inList) { html += "<ul>"; inList = true; } html += `<li>${inline(li[1])}</li>`; }
+      else if (!line) { flush(); if (inList) { html += "</ul>"; inList = false; } }
+      else { if (inList) { html += "</ul>"; inList = false; } para.push(line); }
+    }
+    flush(); if (inList) html += "</ul>";
+    return html;
+  }
+</script>
 </body>
 </html>

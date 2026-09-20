@@ -1,6 +1,6 @@
 import os
 from models import Model
-from pipeline import Pipeline
+from pipeline import Pipeline, language_instruction
 
 from langchain_core.prompts import ChatPromptTemplate, PromptTemplate
 from langchain_community.document_loaders import BSHTMLLoader
@@ -33,6 +33,7 @@ class LangChain(Pipeline):
             """
     1. Use the following pieces of context to answer the question as travel advise at the end.
     2. Keep the answer crisp and limited to 3,4 sentences.
+    3. {language}
 
     Context: {context}
 
@@ -50,13 +51,13 @@ class LangChain(Pipeline):
     def format_docs(docs):
         return "\n\n".join(doc.page_content for doc in docs)
 
-    def start(self, model: Model, prompt: str):
+    def start(self, model: Model, prompt: str, lang: str = "en"):
         vector = FAISS.from_documents(self._documents, model.langchain_embedding())
         retriever = vector.as_retriever()
 
         rag_chain = (
             {"context": retriever | self.format_docs, "input": RunnablePassthrough()}
-            | self._prompt
+            | self._prompt.partial(language=language_instruction(lang))
             | model.langchain_llm()
             | StrOutputParser()
         )

@@ -1,7 +1,7 @@
 from models import Model
 from models.factory import get_model
 
-from pipeline import Pipeline
+from pipeline import Pipeline, language_instruction
 from tools.movie_sentence import movie_quote
 from tools.travel_advice import travel_advice
 from tools.valid_city import valid_city
@@ -87,8 +87,12 @@ Begin! Reminder to ALWAYS respond with a valid json blob of a single action. Use
             max_iterations=10,
         )
 
-    def start(self, model: Model, prompt: str) -> object:
-        task = f"if {prompt} is a valid city, provide a travel advice. Otherwise, provide an explanation on why you cannot answer."
+    def start(self, model: Model, prompt: str, lang: str = "en") -> object:
+        task = (
+            f"if {prompt} is a valid city, provide a travel advice. "
+            "Otherwise, provide an explanation on why you cannot answer. "
+            f"{language_instruction(lang)}"
+        )
         # chat_history = self.memory.buffer_as_messages
         response = self.agent_executor.invoke(
             {
