@@ -304,7 +304,7 @@ def answer(q):
 
     <section id="g-node">
       <h2>3-1. Node.js 앱에 적용</h2>
-      <p><code>@traceloop/node-server-sdk</code>를 씁니다. Dynatrace 문서 기준으로 <b>Node.js SDK는 Metric을 지원하지 않아</b> Trace만 수집됩니다(Token 수는 Span 속성으로 남음).</p>
+      <p><code>@traceloop/node-server-sdk</code>를 씁니다. Traceloop <b>OpenLLMetry Node.js SDK는 Metric을 생성하지 않아</b> Trace만 전송됩니다. Dynatrace 쪽 제약은 아니며, Dynatrace는 Node.js 앱이 보내는 OTLP Metric도 받습니다(Delta temporality 필수). Token 수는 Span 속성으로 수집되므로 아래 ⑤의 방법으로 Metric처럼 활용할 수 있습니다.</p>
       <h3>① 설치</h3>
       <div class="code"><span class="lang">bash</span><pre><code>npm install @traceloop/node-server-sdk</code></pre></div>
       <h3>② 초기화 코드 (엔트리 파일 맨 위, LLM SDK보다 먼저)</h3>
@@ -359,6 +359,33 @@ export const runAgent = (task) =>
     });
     // ... Agent 루프: LLM 판단 → validCity() → ...
   });</code></pre></div>
+      <h3>⑤ Token Metric이 필요할 때 (선택)</h3>
+      <p>Token 수는 Span 속성(<code>gen_ai.usage.input_tokens</code> / <code>output_tokens</code>)으로 이미 Grail에 저장되므로 <b>7. 적용 검증</b>의 DQL로 바로 집계할 수 있습니다. 장기 보관·Alert·대시보드용 Metric이 필요하면 아래 두 방법 중 하나를 쓰세요.</p>
+      <ul>
+        <li><b>OpenPipeline Span → Metric 추출 (권장)</b>: 앱 코드 변경 없이 Span 속성에서 Metric을 만듭니다.</li>
+        <li><b>OTel Metrics SDK로 직접 전송</b>: OpenLLMetry는 Trace용으로 두고, 별도 MeterProvider로 LLM 호출 후 값을 직접 기록합니다.</li>
+      </ul>
+      <div class="code"><span class="lang">bash</span><pre><code>npm install @opentelemetry/sdk-metrics @opentelemetry/exporter-metrics-otlp-proto</code></pre></div>
+      <div class="code"><span class="lang">javascript</span><pre><code>// metrics.js
+import { MeterProvider, PeriodicExportingMetricReader, AggregationTemporality } from "@opentelemetry/sdk-metrics";
+import { OTLPMetricExporter } from "@opentelemetry/exporter-metrics-otlp-proto";
+
+const exporter = new OTLPMetricExporter({
+  url: `${process.env.DT_ENDPOINT}/api/v2/otlp/v1/metrics`,
+  headers: { Authorization: `Api-Token ${process.env.DT_TOKEN}` }, // metrics.ingest 스코프 필요
+  temporalityPreference: AggregationTemporality.DELTA,          // 필수: Dynatrace는 Delta만 수용
+});
+
+export const meter = new MeterProvider({
+  readers: [new PeriodicExportingMetricReader({ exporter, exportIntervalMillis: 60000 })],
+}).getMeter("my-ai-app");
+
+export const tokenUsage = meter.createHistogram("gen_ai.client.token.usage");
+
+// LLM 호출 후:
+// tokenUsage.record(resp.usage.input_tokens,  { "gen_ai.token.type": "input",  "gen_ai.request.model": model });
+// tokenUsage.record(resp.usage.output_tokens, { "gen_ai.token.type": "output", "gen_ai.request.model": model });</code></pre></div>
+      <div class="note">Cumulative temporality로 보내면 Dynatrace가 Counter·Histogram을 거부합니다. 이 방식은 LLM 호출 지점마다 기록 코드를 넣어야 하므로, 코드 변경이 부담되면 OpenPipeline 방식을 쓰세요.</div>
     </section>
 
     <section id="g-auto">
