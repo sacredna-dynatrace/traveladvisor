@@ -122,9 +122,8 @@
     <a href="#g-agent">5. Agents topology 표시</a>
     <a href="#g-k8s">6. Kubernetes 배포</a>
     <a href="#g-verify">7. 적용 검증 (DQL)</a>
-    <a href="#g-trouble">8. 트러블슈팅</a>
-    <a href="#g-ops">9. 운영 권장사항</a>
-    <a href="#g-ref">10. 참고 문서</a>
+    <a href="#g-ops">8. 운영 권장사항</a>
+    <a href="#g-ref">9. 참고 문서</a>
   </aside>
 
   <article>
@@ -285,7 +284,7 @@ Traceloop.init(
     app_name="my-ai-app",                                     # Dynatrace 서비스 이름
     api_endpoint=os.environ["DT_ENDPOINT"] + "/api/v2/otlp",  # https:// 로 시작해야 HTTP 전송
     headers={"Authorization": f"Api-Token {os.environ['DT_TOKEN']}"},
-    disable_batch=True,   # 데모·개발용: 즉시 전송 (운영은 9장 참고)
+    disable_batch=True,   # 데모·개발용: 즉시 전송 (운영은 8장 참고)
 )
 
 # 이 아래에서 LLM SDK / LangChain import
@@ -379,7 +378,7 @@ export const runAgent = (task) =>
         <tr><td><code>gen_ai.usage.input_tokens</code> / <code>output_tokens</code></td><td><code>11</code> / <code>7</code></td></tr>
         <tr><td><code>gen_ai.request.temperature</code>, <code>max_tokens</code></td><td><code>0.5</code>, <code>512</code></td></tr>
         <tr><td><code>aws.bedrock.guardrail.id</code></td><td><code>gr123:DRAFT</code> (Bedrock Guardrail 사용 시)</td></tr>
-        <tr><td><code>gen_ai.prompt.*</code> / <code>gen_ai.completion.*</code></td><td>프롬프트·응답 원문 (9장에서 끄는 법)</td></tr>
+        <tr><td><code>gen_ai.prompt.*</code> / <code>gen_ai.completion.*</code></td><td>프롬프트·응답 원문 (8장에서 끄는 법)</td></tr>
       </table></div>
     </section>
 
@@ -477,25 +476,8 @@ ENV OTEL_EXPORTER_OTLP_METRICS_TEMPORALITY_PREFERENCE=delta \
       <p>Token 속성이 문자열로 들어오면 <code>toLong()</code>으로 감싸 합계를 구하세요.</p>
     </section>
 
-    <section id="g-trouble">
-      <h2>8. 트러블슈팅</h2>
-      <p>이번 적용 중 실제로 겪은 문제입니다. 데이터가 안 보이면 <b>1번(Endpoint)부터</b> 확인하세요.</p>
-      <div class="tbl"><table>
-        <tr><th>증상</th><th>원인</th><th>조치</th></tr>
-        <tr><td><code>Metadata key 'Authorization' is invalid: Illegal header key</code>, 데이터 없음</td><td>Endpoint에 <code>http</code>가 없거나 비어 gRPC로 전환. gRPC는 대문자 헤더 거부</td><td><code>https://&lt;tenant&gt;.live.dynatrace.com/api/v2/otlp</code>로 수정 후 재시작</td></tr>
-        <tr><td><code>traceloop-sdk==0.50.1 depends on Python&gt;=3.10</code></td><td>베이스 이미지가 Python 3.9</td><td><code>python:3.11</code> 이상 사용</td></tr>
-        <tr><td><code>Error initializing LangChain instrumentor: wrap_function_wrapper() ... 'module'</code></td><td>wrapt 2.x 비호환</td><td><code>wrapt&lt;2</code> 고정</td></tr>
-        <tr><td>Agents topology의 Agents가 0</td><td>Agent Span에 GenAI agent 속성 없음</td><td>5장대로 <code>invoke_agent</code> 속성 추가</td></tr>
-        <tr><td>Agent에서 <code>No generation chunks were returned</code>, Span 조각남</td><td>LangChain Agent가 streaming 호출 사용</td><td>Chat 모델에 <code>disable_streaming=True</code></td></tr>
-        <tr><td><code>gen_ai.request.model</code>에 Provider 이름까지 붙음</td><td>Bedrock <code>global.</code> inference profile 미해석</td><td><code>us.</code>/<code>eu.</code> profile 사용 또는 SDK 업그레이드</td></tr>
-        <tr><td>Bedrock <code>Error 002: Access to Bedrock models is not allowed for this account</code></td><td>AWS 계정 단위 차단. 코드 문제 아님</td><td>Playground 재현 확인 후 AWS Support(Account and billing) 문의</td></tr>
-        <tr><td>Pod <code>ImagePullBackOff</code> (kind)</td><td><code>imagePullPolicy: Always</code> 중복으로 로컬 이미지 무시</td><td>중복 키 삭제, <code>kind load docker-image</code> 확인</td></tr>
-        <tr><td>모델 EOL로 호출 실패 (예: Titan Text G1)</td><td>모델 전용 요청 포맷에 의존</td><td>Bedrock은 모델 공통 Converse API로 호출</td></tr>
-      </table></div>
-    </section>
-
     <section id="g-ops">
-      <h2>9. 운영 권장사항</h2>
+      <h2>8. 운영 권장사항</h2>
       <div class="tbl"><table>
         <tr><th>항목</th><th>데모 설정</th><th>운영 권장</th><th>이유</th></tr>
         <tr><td>프롬프트·응답 원문 수집</td><td>기본값(수집)</td><td><code>TRACELOOP_TRACE_CONTENT=false</code></td><td>개인정보·기밀이 Span에 남지 않도록. Token·Model·지연은 계속 수집</td></tr>
@@ -511,7 +493,7 @@ ENV OTEL_EXPORTER_OTLP_METRICS_TEMPORALITY_PREFERENCE=delta \
     </section>
 
     <section id="g-ref">
-      <h2>10. 참고 문서</h2>
+      <h2>9. 참고 문서</h2>
       <ul>
         <li><a href="https://docs.dynatrace.com/docs/observe/dynatrace-for-ai-observability/get-started/openllmetry" target="_blank" rel="noopener">Get started with OpenLLMetry and AI Observability — Dynatrace Docs</a></li>
         <li><a href="https://docs.dynatrace.com/docs/observe/dynatrace-for-ai-observability/ai-observability-app" target="_blank" rel="noopener">AI Observability app — Dynatrace Docs</a></li>
