@@ -83,6 +83,9 @@
 		"ANTHROPIC_API_KEY": {
 			"description": "Anthropic API key (only when LLM_PROVIDER=anthropic)"
 		},
+		"ANTHROPIC_MODEL": {
+			"description": "Anthropic model ID (only when LLM_PROVIDER=anthropic). Leave empty for default claude-haiku-4-5-20251001, eg. claude-sonnet-4-5-20250929"
+		},
 		"AWS_GUARDRAIL_ID": {
 			"description": "AWS Guardrail id to protect input and output prompt, eg. 5zwrmdlsra2e"
 		}
