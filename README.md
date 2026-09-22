@@ -109,6 +109,7 @@ kubectl -n travel-advisor rollout restart deploy/travel-advisor
 * **Distributed Tracing**: `travel-advisor` 서비스의 LLM·Agent·Tool Span
 * **AI Observability**: Model·Provider Overview, Agents topology
 * **대시보드**: `dynatrace/dashboards/bedrock/[AiObs] AWS Bedrock.json`을 import
+* **참고 대시보드**: [TravelAdvisor AI Observability Overview](https://diw85600.apps.dynatrace.com/ui/apps/dynatrace.dashboards/dashboard/b8b75bca-6577-4692-8093-b815e8da2e51#vfilter_Service=3420b2ac-f1cf-4b24-b62d-61ba1ba8ed05*&vfilter_Provider=3420b2ac-f1cf-4b24-b62d-61ba1ba8ed05*&vfilter_JudgeModel=3420b2ac-f1cf-4b24-b62d-61ba1ba8ed05*&vfilter_Metric=3420b2ac-f1cf-4b24-b62d-61ba1ba8ed05*&vfilter_RunId=3420b2ac-f1cf-4b24-b62d-61ba1ba8ed05*&from=%40d&to=now%28%29) — Agent·AI 서비스·Model·LLM Provider 수, AI 요청 수, p95 latency, Token 사용량, 예상 비용을 한 화면에서 확인할 수 있습니다.
 * **DQL**: `/guide.html`의 "7. 적용 검증" 참고
 
 ## 참고
