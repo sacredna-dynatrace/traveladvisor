@@ -9,6 +9,8 @@ from opentelemetry import trace
 from opentelemetry.sdk.resources import Resource
 from traceloop.sdk import Traceloop
 from traceloop.sdk.decorators import workflow
+from opentelemetry.instrumentation.botocore import BotocoreInstrumentor
+from opentelemetry.instrumentation.fastapi import FastAPIInstrumentor
 
 from models.factory import get_model
 from pipeline.agentic import Agentic
@@ -59,6 +61,19 @@ Traceloop.init(
     headers=headers,
 )
 
+# AWS SDK(botocore) 호출 계측: Bedrock Runtime / S3 / STS 등 모든 AWS API 호출을 CLIENT span으로 기록
+# (rpc.service, rpc.method, aws.request_id, aws.region 속성 포함)
+# 주의: botocore instrumentation의 Bedrock 확장은 gen_ai.usage.* 속성을 붙인다.
+#       Traceloop(OpenLLMetry)이 이미 같은 LLM 호출에 gen_ai span을 만들기 때문에
+#       그대로 두면 AI Observability 대시보드에서 토큰/비용이 2배로 집계된다.
+#       Bedrock 확장만 끄고 일반 AWS SDK span(Bedrock Runtime.InvokeModel 등)만 남긴다.
+if os.environ.get("OTEL_BOTOCORE_BEDROCK_GENAI", "false").lower() != "true":
+    from opentelemetry.instrumentation.botocore import extensions as _botocore_ext
+
+    # private API: opentelemetry-instrumentation-botocore 0.65b0 기준. 버전 올릴 때 이 dict 이름 확인할 것
+    _botocore_ext._BOTOCORE_EXTENSIONS.pop("bedrock-runtime", None)
+BotocoreInstrumentor().instrument()
+
 ## Pipelines
 
 bedrock = get_model()  # Bedrock or Anthropic, see LLM_PROVIDER
@@ -77,6 +92,20 @@ pipelines = {
 
 app = FastAPI()
 
+# FastAPI(ASGI) 인바운드 요청 계측: 모든 HTTP 요청을 SERVER span으로 기록하고
+# traceparent 헤더를 받아 upstream(RUM, Gateway 등)과 trace를 이어준다.
+# Traceloop.init()이 global TracerProvider를 설정한 뒤에 호출해야 같은 exporter로 나간다.
+FastAPIInstrumentor.instrument_app(
+    app,
+    # 정적 파일(public/) 요청은 trace에서 제외 — 데모 환경에 맞게 조정
+    excluded_urls=os.environ.get(
+        "OTEL_PYTHON_FASTAPI_EXCLUDED_URLS",
+        r"\.(css|js|map|png|jpg|jpeg|svg|ico|woff2?)$",
+    ),
+    # ASGI http.receive / http.send 내부 span 제거 (노이즈 감소)
+    exclude_spans=["receive", "send"],
+)
+
 
 @app.exception_handler(HTTPException)
 async def validation_exception_handler(request, exc):
@@ -86,8 +115,9 @@ async def validation_exception_handler(request, exc):
 ####################################
 @app.get("/api/v1/completion")
 def submit_completion(prompt: str, pipeline: str, lang: str = "en"):
+    # SERVER span은 FastAPIInstrumentor가 만들므로 여기서는 INTERNAL로 바꿔 SERVER span 중복을 피한다
     with otel_tracer.start_as_current_span(
-        name="/api/v1/completion", kind=trace.SpanKind.SERVER
+        name="/api/v1/completion", kind=trace.SpanKind.INTERNAL
     ) as span:
         span.set_attribute("travel_advisor.pipeline", pipeline)
         span.set_attribute("travel_advisor.language", lang)
