@@ -2,13 +2,13 @@ import os
 
 from utils.secrets import read_secret
 
-# LLM_PROVIDER selects the backend: "bedrock" (default) or "anthropic".
+# LLM_PROVIDER selects the backend: "anthropic" (default) or "bedrock".
 _instance = None
 
 
 def provider() -> str:
     return (
-        os.environ.get("LLM_PROVIDER") or read_secret("provider") or "bedrock"
+        os.environ.get("LLM_PROVIDER") or read_secret("provider") or "anthropic"
     ).strip().lower()
 
 

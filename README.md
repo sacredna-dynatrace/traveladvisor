@@ -1,7 +1,7 @@
 # EasyTravel Bedrock - Travel Advisor
 
 Python(FastAPI)로 작성한 여행 조언 데모 앱입니다. LLM 호출과 Agent 동작을 [Traceloop OpenLLMetry](https://github.com/traceloop/openllmetry)와 [OpenTelemetry](https://opentelemetry.io)로 계측해 Dynatrace로 보냅니다.
-LLM은 [Amazon Bedrock](https://aws.amazon.com/bedrock/)(기본)과 [Anthropic Claude API](https://docs.anthropic.com/) 중 하나를 씁니다.
+LLM은 [Anthropic Claude API](https://docs.anthropic.com/)(기본)과 [Amazon Bedrock](https://aws.amazon.com/bedrock/) 중 하나를 씁니다.
 
 > **Note**
 > This product is not officially supported by Dynatrace!
@@ -16,7 +16,7 @@ LLM은 [Amazon Bedrock](https://aws.amazon.com/bedrock/)(기본)과 [Anthropic C
   | `rag` | LangChain으로 `destinations/` 문서를 검색한 뒤 호출 |
   | `agentic` | LangChain Agent가 `valid_city` 등 Tool을 스스로 골라 여러 번 호출 |
 
-* **LLM Provider 전환**: `LLM_PROVIDER=bedrock`(기본) 또는 `anthropic`. Bedrock은 Converse API를 씁니다.
+* **LLM Provider 전환**: `LLM_PROVIDER=anthropic`(기본) 또는 `bedrock`. Bedrock은 Converse API를 씁니다.
 * **GenAI Agent 계측**: `invoke_agent` / `execute_tool` Span을 OpenTelemetry GenAI semantic conventions에 맞춰 보내 Dynatrace AI Observability의 Agents topology에 표시됩니다.
 * **한국어 데모 UI**: 응답 언어(ko/en) 선택, 파이프라인 비교, 아키텍처 설명. 영문 원본 UI는 `public/index-original-en.html`에 남겨 두었습니다.
 * **적용 가이드** (`/guide.html`): Agent 동작 원리와 Traceloop 적용 방법(Python·Node.js), Kubernetes 배포, 검증용 DQL을 한국어로 정리했습니다.
@@ -35,13 +35,13 @@ LLM은 [Amazon Bedrock](https://aws.amazon.com/bedrock/)(기본)과 [Anthropic C
 
 | 환경 변수 | 기본값 | 설명 |
 |---|---|---|
-| `LLM_PROVIDER` | `bedrock` | `bedrock` 또는 `anthropic` |
+| `LLM_PROVIDER` | `anthropic` | `anthropic` 또는 `bedrock` |
 | `AWS_DEFAULT_REGION` | `us-east-1` | Bedrock 리전 |
 | `AWS_ACCESS_KEY_ID` / `AWS_SECRET_ACCESS_KEY` | - | Bedrock 인증 |
 | `AWS_MODEL` | `us.amazon.nova-2-lite-v1:0` | Converse API를 지원하는 모델 또는 inference profile ID |
 | `AWS_EMBEDDING_MODEL` | `amazon.titan-embed-text-v2:0` | Bedrock RAG 임베딩 |
 | `AWS_GUARDRAIL_ID` / `AWS_GUARDRAIL_VERSION` | - / `DRAFT` | 선택 |
-| `ANTHROPIC_API_KEY` | - | `LLM_PROVIDER=anthropic`일 때만 필요 |
+| `ANTHROPIC_API_KEY` | - | 기본(`anthropic`) Provider 사용 시 필요 |
 | `ANTHROPIC_MODEL` | `claude-haiku-4-5-20251001` | Anthropic 모델 |
 | `LOCAL_EMBEDDING_MODEL` | `BAAI/bge-small-en-v1.5` | Anthropic 사용 시 RAG 임베딩(fastembed, 이미지에 포함) |
 | `DT_ENDPOINT` / `DT_TOKEN` | - | K8S 배포용. Dynatrace 환경 URL과 API Token |
@@ -60,13 +60,13 @@ Codespace를 만들 때 `DT_ENDPOINT`, `DT_TOKEN`, `AWS_*`, `LLM_PROVIDER`, `ANT
 ```bash
 pip install -r requirements.txt
 
-export LLM_PROVIDER=bedrock          # 또는 anthropic
+export LLM_PROVIDER=anthropic       # 또는 bedrock
 export AWS_DEFAULT_REGION=us-east-1
 export AWS_ACCESS_KEY_ID=<YOUR_AWS_KEY>
 export AWS_SECRET_ACCESS_KEY=<YOUR_AWS_SECRET>
 export AWS_MODEL=us.amazon.nova-2-lite-v1:0
 export AWS_EMBEDDING_MODEL=amazon.titan-embed-text-v2:0
-# export ANTHROPIC_API_KEY=<YOUR_ANTHROPIC_KEY>   # LLM_PROVIDER=anthropic일 때
+export ANTHROPIC_API_KEY=<YOUR_ANTHROPIC_KEY>   # 기본(anthropic) Provider
 export OTEL_ENDPOINT=https://<YOUR_DT_TENANT>.live.dynatrace.com/api/v2/otlp
 export API_TOKEN=<YOUR_DT_TOKEN>
 
@@ -80,14 +80,14 @@ python app.py                         # http://localhost:8080
 ```bash
 kind create cluster --config .devcontainer/kind-cluster.yml --wait 300s
 
-export LLM_PROVIDER=bedrock          # 또는 anthropic
+export LLM_PROVIDER=anthropic       # 또는 bedrock
 export AWS_DEFAULT_REGION=us-east-1
 export AWS_ACCESS_KEY_ID=<YOUR_AWS_KEY>
 export AWS_SECRET_ACCESS_KEY=<YOUR_AWS_SECRET>
 export AWS_MODEL=us.amazon.nova-2-lite-v1:0
 export AWS_EMBEDDING_MODEL=amazon.titan-embed-text-v2:0
 export AWS_GUARDRAIL_ID=<OPTIONAL_YOUR_AWS_BEDROCK_GUARDRAIL>
-# export ANTHROPIC_API_KEY=<YOUR_ANTHROPIC_KEY>   # LLM_PROVIDER=anthropic일 때
+export ANTHROPIC_API_KEY=<YOUR_ANTHROPIC_KEY>   # 기본(anthropic) Provider
 export DT_ENDPOINT=https://<YOUR_DT_TENANT>.live.dynatrace.com
 export DT_TOKEN=<YOUR_DT_TOKEN>
 
