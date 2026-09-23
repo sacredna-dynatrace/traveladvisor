@@ -2,7 +2,7 @@ import logging
 import os
 from fastapi import FastAPI, HTTPException
 from fastapi.staticfiles import StaticFiles
-from fastapi.responses import JSONResponse
+from fastapi.responses import JSONResponse, FileResponse, HTMLResponse
 import uvicorn
 
 from opentelemetry import trace
@@ -18,6 +18,7 @@ from pipeline.basic import Basic
 from pipeline.langchain import LangChain
 from utils import format_message
 from utils.secrets import read_secret
+from utils.rum import load_rum_snippet, inject_snippet
 
 # disable traceloop telemetry
 os.environ["TRACELOOP_TELEMETRY"] = "false"
@@ -53,6 +54,9 @@ TOKEN = read_token()
 headers = {"Authorization": f"Api-Token {TOKEN}"}
 
 otel_tracer = trace.get_tracer("travel-advisor")
+
+# Dynatrace RUM JavaScript tag (agentless). DT_RUM_SNIPPET 또는 DT_RUM_APP_ID 로 활성화 — utils/rum.py 참고
+RUM_SNIPPET = load_rum_snippet(OTEL_ENDPOINT, TOKEN)
 
 Traceloop.init(
     app_name="travel-advisor",
@@ -165,9 +169,36 @@ def thumbs_down(prompt: str):
     logger.info(f"Negative user feedback for search term: {prompt}")
 
 
+class RumStaticFiles(StaticFiles):
+    """public/*.html 응답의 <head>에 Dynatrace RUM JavaScript tag를 삽입한다."""
+
+    def is_not_modified(self, response_headers, request_headers) -> bool:
+        # 브라우저에 남은 (tag 없는) 이전 캐시로 304 응답하지 않도록 조건부 요청을 무시
+        if RUM_SNIPPET:
+            return False
+        return super().is_not_modified(response_headers, request_headers)
+
+    async def get_response(self, path, scope):
+        response = await super().get_response(path, scope)
+        if (
+            RUM_SNIPPET
+            and isinstance(response, FileResponse)
+            and str(response.path).endswith(".html")
+        ):
+            with open(response.path, "r", encoding="utf-8") as f:
+                html = inject_snippet(f.read(), RUM_SNIPPET)
+            # 주입 결과가 tag 버전에 따라 바뀌므로 파일 기반 ETag/304 캐시는 쓰지 않는다
+            return HTMLResponse(
+                html,
+                status_code=response.status_code,
+                headers={"Cache-Control": "no-cache"},
+            )
+        return response
+
+
 if __name__ == "__main__":
-    # Mount static files at the root
-    app.mount("/", StaticFiles(directory="./public", html=True), name="public")
+    # Mount static files at the root (HTML에는 Dynatrace RUM tag 자동 삽입)
+    app.mount("/", RumStaticFiles(directory="./public", html=True), name="public")
 
     # Run the app using uvicorn
     uvicorn.run(app, host="0.0.0.0", port=8080)

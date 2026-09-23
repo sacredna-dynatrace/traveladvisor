@@ -60,7 +60,13 @@
 			"description": "eg. https://abc12345.live.dynatrace.com"
 		},
 		"DT_TOKEN": {
-			"description": "Dynatrace API token with these permissions: Ingest metrics, Ingest logs, Ingest events, Ingest OpenTelemetry, Read metrics, Write settings"
+			"description": "Dynatrace API token with these permissions: Ingest metrics, Ingest logs, Ingest events, Ingest OpenTelemetry, Read metrics, Write settings, Read RUM manual insertion tags (rumManualInsertionTags.read, for DT_RUM_APP_ID)"
+		},
+		"DT_RUM_APP_ID": {
+			"description": "(Optional) Dynatrace Web application ID for RUM, eg. APPLICATION-1234567890ABCDEF. The latest agentless JavaScript tag is fetched from the tenant and injected into every HTML page"
+		},
+		"DT_RUM_SNIPPET": {
+			"description": "(Optional) Full RUM JavaScript tag (<script ...></script>) copied from the tenant. Overrides DT_RUM_APP_ID"
 		},
 		"AWS_DEFAULT_REGION": {
 			"description": "AWS Region to use, eg. us-east-1"

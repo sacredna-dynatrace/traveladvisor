@@ -46,8 +46,10 @@ LLM은 [Anthropic Claude API](https://docs.anthropic.com/)(기본)과 [Amazon Be
 | `LOCAL_EMBEDDING_MODEL` | `BAAI/bge-small-en-v1.5` | Anthropic 사용 시 RAG 임베딩(fastembed, 이미지에 포함) |
 | `DT_ENDPOINT` / `DT_TOKEN` | - | K8S 배포용. Dynatrace 환경 URL과 API Token |
 | `OTEL_ENDPOINT` / `API_TOKEN` | - | 로컬 실행용. `https://<tenant>.live.dynatrace.com/api/v2/otlp`와 API Token |
+| `DT_RUM_APP_ID` | - | 선택. RUM Web application ID(`APPLICATION-…`). 기동 시 테넌트에서 최신 JavaScript tag를 받아 모든 HTML `<head>`에 삽입 |
+| `DT_RUM_SNIPPET` | - | 선택. 테넌트에서 복사한 `<script …></script>` 전체. 지정 시 `DT_RUM_APP_ID`보다 우선 |
 
-API Token에는 `openTelemetryTrace.ingest`, `metrics.ingest`, `logs.ingest` 스코프가 필요합니다. K8S에서는 `deployment.sh`가 이 값들을 Secret(`bedrock`, `llm`, `dynatrace`)으로 만들고, 앱은 `/etc/secrets`에서 읽습니다.
+API Token에는 `openTelemetryTrace.ingest`, `metrics.ingest`, `logs.ingest` 스코프가 필요하고, `DT_RUM_APP_ID`를 쓰면 `rumManualInsertionTags.read`를 추가합니다. K8S에서는 `deployment.sh`가 이 값들을 Secret(`bedrock`, `llm`, `dynatrace`)으로 만들고, 앱은 `/etc/secrets`에서 읽습니다.
 
 ## GitHub Codespaces에서 실행
 
@@ -69,6 +71,7 @@ export AWS_EMBEDDING_MODEL=amazon.titan-embed-text-v2:0
 export ANTHROPIC_API_KEY=<YOUR_ANTHROPIC_KEY>   # 기본(anthropic) Provider
 export OTEL_ENDPOINT=https://<YOUR_DT_TENANT>.live.dynatrace.com/api/v2/otlp
 export API_TOKEN=<YOUR_DT_TOKEN>
+export DT_RUM_APP_ID=<OPTIONAL_RUM_APPLICATION_ID>   # RUM 수집 시
 
 python app.py                         # http://localhost:8080
 ```
@@ -90,6 +93,7 @@ export AWS_GUARDRAIL_ID=<OPTIONAL_YOUR_AWS_BEDROCK_GUARDRAIL>
 export ANTHROPIC_API_KEY=<YOUR_ANTHROPIC_KEY>   # 기본(anthropic) Provider
 export DT_ENDPOINT=https://<YOUR_DT_TENANT>.live.dynatrace.com
 export DT_TOKEN=<YOUR_DT_TOKEN>
+export DT_RUM_APP_ID=<OPTIONAL_RUM_APPLICATION_ID>   # RUM 수집 시
 
 .devcontainer/deployment.sh
 ```
@@ -104,11 +108,37 @@ kind load docker-image travel-advisor:local --name kind
 kubectl -n travel-advisor rollout restart deploy/travel-advisor
 ```
 
+## Real User Monitoring (RUM)
+
+이 앱은 OneAgent 없이 OpenTelemetry로만 계측되고 Python은 RUM 자동 주입 대상이 아니므로, **Agentless RUM** JavaScript tag를 앱이 직접 `public/*.html`의 `<head>` 맨 앞에 삽입합니다(`utils/rum.py`, `app.py`의 `RumStaticFiles`).
+
+1. 테넌트(`diw85600`)에서 Web application을 만들고 **Agentless monitoring**으로 설정한 뒤 Application ID를 확인합니다. 새 RUM 경험(Grail `user.events`)으로 분석하려면 해당 앱에서 New RUM Experience를 켭니다.
+2. `DT_RUM_APP_ID`(또는 `DT_RUM_SNIPPET`)를 지정해 배포합니다. 기동 로그(`run.log`)에 `Dynatrace RUM: JavaScript tag loaded`가 찍히면 적용된 것입니다.
+3. 브라우저 요청(`/api/v1/completion` 등)과 백엔드 Trace를 이으려면 해당 앱의 RUM 설정에서 same-origin 요청에 W3C `traceparent` 헤더 전파를 켭니다. 백엔드는 `FastAPIInstrumentor`가 `traceparent`를 받아 같은 Trace로 이어 줍니다.
+4. 이미 배포된 클러스터는 Secret만 갱신하고 재시작하면 됩니다.
+
+```bash
+kubectl -n travel-advisor create secret generic dynatrace \
+  --from-literal=token=$DT_TOKEN --from-literal=endpoint=$DT_ENDPOINT/api/v2/otlp \
+  --from-literal=rum-app-id=$DT_RUM_APP_ID --from-literal=rum-snippet= \
+  --dry-run=client -o yaml | kubectl apply -f -
+kubectl -n travel-advisor rollout restart deploy/travel-advisor
+```
+
+확인 DQL(새 RUM):
+
+```
+fetch user.events, from: now()-1h
+| filter dt.rum.application.entity == "<APPLICATION-ID>"
+| summarize events = count(), sessions = countDistinctExact(dt.rum.session.id), by: { characteristics.classifier }
+```
+
 ## Dynatrace에서 확인
 
 * **Distributed Tracing**: `travel-advisor` 서비스의 LLM·Agent·Tool Span
 * **AI Observability**: Model·Provider Overview, Agents topology
 * **참고 대시보드**: [TravelAdvisor AI Observability Overview](https://diw85600.apps.dynatrace.com/ui/apps/dynatrace.dashboards/dashboard/b8b75bca-6577-4692-8093-b815e8da2e51#vfilter_Service=3420b2ac-f1cf-4b24-b62d-61ba1ba8ed05*&vfilter_Provider=3420b2ac-f1cf-4b24-b62d-61ba1ba8ed05*&vfilter_JudgeModel=3420b2ac-f1cf-4b24-b62d-61ba1ba8ed05*&vfilter_Metric=3420b2ac-f1cf-4b24-b62d-61ba1ba8ed05*&vfilter_RunId=3420b2ac-f1cf-4b24-b62d-61ba1ba8ed05*&from=%40d&to=now%28%29) — Agent·AI 서비스·Model·LLM Provider 수, AI 요청 수, p95 latency, Token 사용량, 예상 비용을 한 화면에서 확인할 수 있습니다.
+* **Real User Monitoring**: `DT_RUM_APP_ID`로 지정한 Web application — 페이지 로드, Core Web Vitals, `/api/v1/completion` 요청 성능·오류
 * **DQL**: `/guide.html`의 "7. 적용 검증" 참고
 
 ## 참고
