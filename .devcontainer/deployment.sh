@@ -35,6 +35,14 @@ kubectl -n travel-advisor create secret generic dynatrace \
   --from-literal=rum-app-id="${DT_RUM_APP_ID:-}" \
   --from-literal=rum-snippet="${DT_RUM_SNIPPET:-}"
 
+# Kubernetes cluster identity for OTel resource attributes (k8s.cluster.uid / k8s.cluster.name)
+#   k8s.cluster.uid : kube-system namespace UID — Dynatrace가 K8s cluster entity를 식별하는 값
+#   k8s.cluster.name: Dynatrace에 보이는 cluster 이름 (DynaKube 이름 기준, 기본 kind-kind)
+kubectl -n travel-advisor create configmap k8s-cluster-info \
+  --from-literal=cluster-uid="$(kubectl get namespace kube-system -o jsonpath='{.metadata.uid}')" \
+  --from-literal=cluster-name="${K8S_CLUSTER_NAME:-kind-kind}" \
+  --dry-run=client -o yaml | kubectl apply -f -
+
 # Deploy the application
 kubectl apply -f deployment/travel-advisor.yaml -n travel-advisor
 

@@ -133,6 +133,10 @@ fetch user.events, from: now()-1h
 | summarize events = count(), sessions = countDistinctExact(dt.rum.session.id), by: { characteristics.classifier }
 ```
 
+## Kubernetes 인프라 연결
+
+OTel만으로 계측된 서비스는 resource에 `k8s.*` 속성이 없으면 Services 앱의 **Infrastructure** 탭이 비어 있습니다. `deployment/travel-advisor.yaml`은 Downward API와 `OTEL_RESOURCE_ATTRIBUTES`로 `k8s.cluster.uid`(kube-system namespace UID), `k8s.namespace.name`, `k8s.pod.name/uid`, `k8s.node.name`, `k8s.workload.kind/name`, `k8s.container.name`을 붙이고, `deployment.sh`가 cluster UID·이름을 ConfigMap `k8s-cluster-info`로 만듭니다(`K8S_CLUSTER_NAME`, 기본 `kind-kind`). DynaKube(`kubernetes-monitoring`)가 수집하는 같은 cluster의 pod·workload와 연결됩니다.
+
 ## Dynatrace에서 확인
 
 * **Distributed Tracing**: `travel-advisor` 서비스의 LLM·Agent·Tool Span
