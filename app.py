@@ -1,5 +1,6 @@
 import logging
 import os
+import time
 from fastapi import FastAPI, HTTPException
 from fastapi.staticfiles import StaticFiles
 from fastapi.responses import JSONResponse, FileResponse, HTMLResponse
@@ -24,6 +25,9 @@ from utils.rum import load_rum_snippet, inject_snippet
 os.environ["TRACELOOP_TELEMETRY"] = "false"
 # configure OTel accumulation method
 os.environ["OTEL_EXPORTER_OTLP_METRICS_TEMPORALITY_PREFERENCE"] = "delta"
+# 앱 로그를 OTLP(/v1/logs)로 내보낸다. Traceloop이 LoggerProvider + LoggingHandler를 붙이고,
+# LoggingHandler는 현재 span의 trace_id/span_id를 로그에 넣어 Dynatrace에서 service·trace와 연결된다.
+os.environ.setdefault("TRACELOOP_LOGGING_ENABLED", "true")
 
 
 def read_token():
@@ -39,8 +43,9 @@ if OTEL_ENDPOINT.endswith("/v1/traces"):
     OTEL_ENDPOINT = OTEL_ENDPOINT[: OTEL_ENDPOINT.find("/v1/traces")]
 
 
-# Initialise the logger
-logging.basicConfig(level=logging.INFO, filename="run.log")
+# Logger는 Traceloop.init() 이후에 구성한다(아래 "CONFIGURE LOGGING").
+# 주의: 여기서 logging.basicConfig()를 먼저 부르면 Traceloop의 basicConfig(OTLP handler)가
+#       no-op이 되어 로그가 Dynatrace로 나가지 않는다.
 logger = logging.getLogger(__name__)
 
 # ################
@@ -55,15 +60,34 @@ headers = {"Authorization": f"Api-Token {TOKEN}"}
 
 otel_tracer = trace.get_tracer("travel-advisor")
 
-# Dynatrace RUM JavaScript tag (agentless). DT_RUM_SNIPPET 또는 DT_RUM_APP_ID 로 활성화 — utils/rum.py 참고
-RUM_SNIPPET = load_rum_snippet(OTEL_ENDPOINT, TOKEN)
-
 Traceloop.init(
     app_name="travel-advisor",
     api_endpoint=OTEL_ENDPOINT,
     disable_batch=True,
     headers=headers,
 )
+
+# ################
+# # CONFIGURE LOGGING
+# Traceloop이 root logger에 OTLP LoggingHandler를 붙였다(TRACELOOP_LOGGING_ENABLED=true).
+# 기존처럼 run.log 파일에도 남긴다. stdout에는 추가하지 않는다 — DynaKube logMonitoring이
+# container stdout을 따로 수집하므로 stdout에 쓰면 Dynatrace에 같은 로그가 두 번 들어간다.
+_root = logging.getLogger()
+_root.setLevel(logging.INFO)
+_otlp_log_handler = any(type(h).__name__ == "LoggingHandler" for h in _root.handlers)
+_file_handler = logging.FileHandler("run.log")
+_file_handler.setFormatter(
+    logging.Formatter("%(asctime)s %(levelname)s [%(name)s] %(message)s")
+)
+_root.addHandler(_file_handler)
+# 라이브러리 내부 HTTP 로그(OTLP export 호출 포함)는 노이즈라 WARNING 이상만
+for _name in ("httpx", "httpcore", "urllib3", "botocore", "anthropic"):
+    logging.getLogger(_name).setLevel(logging.WARNING)
+
+logger.info(f"OTLP log export {'enabled' if _otlp_log_handler else 'DISABLED (no LoggingHandler on root logger)'}")
+
+# Dynatrace RUM JavaScript tag (agentless). DT_RUM_SNIPPET 또는 DT_RUM_APP_ID 로 활성화 — utils/rum.py 참고
+RUM_SNIPPET = load_rum_snippet(OTEL_ENDPOINT, TOKEN)
 
 # AWS SDK(botocore) 호출 계측: Bedrock Runtime / S3 / STS 등 모든 AWS API 호출을 CLIENT span으로 기록
 # (rpc.service, rpc.method, aws.request_id, aws.region 속성 포함)
@@ -150,8 +174,21 @@ def submit_workflow(prompt: str, pipeline: str, span: trace.Span, lang: str = "e
                 detail=format_message("Sorry, the selected framework doesn't exist"),
             )
         pipeline = pipelines[p]
-        return pipeline.start(bedrock, clean_prompt, lang)
+        logger.info(f"Completion request: pipeline={p} lang={lang} prompt={clean_prompt!r}")
+        started = time.perf_counter()
+        try:
+            result = pipeline.start(bedrock, clean_prompt, lang)
+        except Exception:
+            logger.exception(f"Completion failed: pipeline={p} lang={lang}")
+            raise
+        logger.info(
+            f"Completion finished: pipeline={p} lang={lang} "
+            f"provider={bedrock.provider_name} model={bedrock.model_name} "
+            f"elapsed_ms={(time.perf_counter() - started) * 1000:.0f}"
+        )
+        return result
     else:  # No, or invalid prompt given
+        logger.warning("Completion rejected: empty or invalid prompt")
         span.set_status(trace.status.StatusCode.ERROR, "Invalid prompt")
         return format_message("Sorry, the prompt provided is invalid")
 

@@ -137,6 +137,10 @@ fetch user.events, from: now()-1h
 
 OTel만으로 계측된 서비스는 resource에 `k8s.*` 속성이 없으면 Services 앱의 **Infrastructure** 탭이 비어 있습니다. `deployment/travel-advisor.yaml`은 Downward API와 `OTEL_RESOURCE_ATTRIBUTES`로 `k8s.cluster.uid`(kube-system namespace UID), `k8s.namespace.name`, `k8s.pod.name/uid`, `k8s.node.name`, `k8s.workload.kind/name`, `k8s.container.name`을 붙이고, `deployment.sh`가 cluster UID·이름을 ConfigMap `k8s-cluster-info`로 만듭니다(`K8S_CLUSTER_NAME`, 기본 `kind-kind`). DynaKube(`kubernetes-monitoring`)가 수집하는 같은 cluster의 pod·workload와 연결됩니다.
 
+## 로그 (OTLP)
+
+앱 로그(`logging`)는 `TRACELOOP_LOGGING_ENABLED=true`(기본값)로 OTLP `/v1/logs`에 전송됩니다. 로그에는 span과 같은 resource(`service.name`, `k8s.*`)와 현재 `trace_id`/`span_id`가 붙어 Services 앱의 **Logs** 탭과 Distributed Tracing에서 연결됩니다. DynaKube `logMonitoring`이 수집하는 container stdout(uvicorn access log, LangChain verbose 출력)은 서비스 정보가 없어 Logs 탭에는 나오지 않고 Kubernetes workload 로그로만 보입니다. `run.log` 파일에도 계속 남습니다.
+
 ## Dynatrace에서 확인
 
 * **Distributed Tracing**: `travel-advisor` 서비스의 LLM·Agent·Tool Span
