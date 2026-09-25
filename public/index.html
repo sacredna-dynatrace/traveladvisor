@@ -198,7 +198,7 @@
       <a href="#pipelines">Pipeline 비교</a>
       <a href="#architecture">아키텍처</a>
       <a href="/guide.html#agent">Agent 동작 원리</a>
-      <a href="/guide.html#traceloop" class="nav-guide">적용 가이드</a>
+      <a href="/guide.html#oneagent" class="nav-guide">적용 가이드</a>
     </nav>
   </div>
 </header>
@@ -211,7 +211,7 @@
     <p class="lead">
       여행지를 입력하면 LLM이 여행 조언을 만들어 줍니다.
       이때 발생하는 모든 LLM 호출, RAG 검색, AI Agent의 Tool 실행이
-      <b>OpenTelemetry</b>로 <b>Dynatrace</b>에 실시간 수집되어,
+      <b>Dynatrace OneAgent</b>로 코드 변경 없이 <b>Dynatrace</b>에 실시간 수집되어,
       응답 시간 · Token 사용량 · 오류를 한눈에 확인할 수 있습니다.
     </p>
     <div class="config-chip" id="configChip"><span class="dot" id="configDot"></span><span id="configText">LLM 연결 정보를 확인하는 중…</span></div>
@@ -370,7 +370,7 @@
 <section class="block" id="architecture">
   <div class="wrap">
     <h2 class="title">구성 아키텍처</h2>
-    <p class="sub">GitHub Codespaces 안의 Kubernetes(kind) 클러스터에서 동작하며, OpenTelemetry 데이터를 Dynatrace로 직접 전송합니다.</p>
+    <p class="sub">GitHub Codespaces 안의 Kubernetes(kind) 클러스터에서 동작하며, Pod에 자동 주입된 Dynatrace OneAgent가 Trace · Metric · Log를 수집합니다.</p>
     <div class="arch">
       <svg viewBox="0 0 1080 470" role="img" aria-label="Travel Advisor 아키텍처 다이어그램" font-family="Noto Sans KR, Malgun Gothic, sans-serif">
         <defs>
@@ -416,11 +416,11 @@
         <text x="450" y="284" font-size="12" fill="#1f2937">• AWS SDK (boto3)</text>
         <text x="450" y="304" font-size="11" fill="#64748b">Messages API / Converse API</text>
 
-        <!-- OTel SDK -->
+        <!-- OneAgent code module -->
         <rect x="218" y="332" width="424" height="84" rx="10" fill="#f5f0fb" stroke="#c4b5fd"/>
-        <text x="232" y="355" font-size="12" font-weight="700" fill="#6f2da8">OpenTelemetry 자동 계측 — Traceloop OpenLLMetry SDK</text>
-        <text x="232" y="377" font-size="12" fill="#1f2937">FastAPI · LangChain · LLM 호출을 Span으로 자동 생성</text>
-        <text x="232" y="397" font-size="12" fill="#1f2937">gen_ai.* 속성: Model · Token · 응답 시간 · 오류</text>
+        <text x="232" y="355" font-size="12" font-weight="700" fill="#6f2da8">Dynatrace OneAgent — code module 자동 주입 (cloudNativeFullStack)</text>
+        <text x="232" y="377" font-size="12" fill="#1f2937">FastAPI · LangChain · Bedrock/Anthropic 호출을 코드 변경 없이 계측</text>
+        <text x="232" y="397" font-size="12" fill="#1f2937">Model · Token · 응답 시간 · 오류 → AI Observability</text>
 
         <!-- LLM providers -->
         <rect x="730" y="62" width="330" height="170" rx="14" fill="#fff" stroke="#cbd5e1"/>
@@ -440,7 +440,7 @@
         <text x="748" y="362" font-size="12" fill="#1f2937">• AI Observability — Model · Token · 비용</text>
         <text x="748" y="386" font-size="12" fill="#1f2937">• Davis AI — 이상 탐지 · 근본 원인 분석</text>
         <text x="748" y="410" font-size="12" fill="#1f2937">• Dashboards · Notebooks</text>
-        <text x="748" y="436" font-size="11" fill="#64748b">OTLP Endpoint: /api/v2/otlp</text>
+        <text x="748" y="436" font-size="11" fill="#64748b">Dynatrace Operator · ActiveGate 경유</text>
 
         <!-- arrows -->
         <line x1="146" y1="218" x2="198" y2="218" stroke="#475569" stroke-width="2" marker-end="url(#ah)"/>
@@ -448,7 +448,7 @@
         <line x1="644" y1="258" x2="728" y2="160" stroke="#475569" stroke-width="2" marker-end="url(#ah)"/>
         <text x="662" y="196" font-size="11" fill="#475569">HTTPS</text>
         <path d="M644 374 L700 374 L700 356 L728 356" fill="none" stroke="#6f2da8" stroke-width="2.5" stroke-dasharray="7 4" marker-end="url(#ahp)"/>
-        <text x="650" y="398" font-size="11" fill="#6f2da8" font-weight="700">OTLP/HTTP</text>
+        <text x="650" y="398" font-size="11" fill="#6f2da8" font-weight="700">OneAgent</text>
       </svg>
       <div class="legend">
         <span><i style="border-color:#475569"></i>요청 흐름</span>
@@ -470,9 +470,9 @@
         <p>AI Agent가 Tool을 골라 LLM을 여러 번 호출하는 과정과, 그 과정이 Dynatrace Trace로 어떻게 보이는지 설명합니다.</p>
         <span>Part 1 보기 →</span>
       </a>
-      <a href="/guide.html#traceloop">
-        <h3>Traceloop(OpenLLMetry) 적용 가이드</h3>
-        <p>Python·Node.js AI 앱에 코드 2줄로 Dynatrace AI Observability를 적용하는 절차, 검증 DQL, 운영 권장사항을 담았습니다.</p>
+      <a href="/guide.html#oneagent">
+        <h3>OneAgent 기반 AI Observability 적용 가이드</h3>
+        <p>코드 변경 없이 Dynatrace OneAgent(Kubernetes Full-Stack)로 Python AI 앱에 AI Observability를 적용하는 절차와 검증 방법을 담았습니다.</p>
         <span>Part 2 보기 →</span>
       </a>
     </div>
