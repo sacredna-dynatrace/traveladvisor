@@ -1,70 +1,46 @@
-apiVersion: dynatrace.com/v1beta6
-kind: DynaKube
-metadata:
-  name: kind-kind-agents
-  namespace: dynatrace
-spec:
-  activeGate:
-    capabilities:
-    - routing
-    - debugging
-    image: public.ecr.aws/dynatrace/dynatrace-activegate:1.337.36.20260526-135434
-    replicas: 3
-    resources:
-      limits:
-        cpu: 1000m
-        memory: 2Gi
-      requests:
-        cpu: 250m
-        memory: 2Gi
-  apiUrl: https://diw85600.live.dynatrace.com/api
-  extensions:
-    prometheus: {}
-  telemetryIngest:
-    protocols:
-    - jaeger
-    - otlp
-    - statsd
-    - zipkin
-    serviceName: telemetry-ingest
-  templates:
-    extensionExecutionController:
-      imageRef:
-        repository: public.ecr.aws/dynatrace/dynatrace-eec
-        tag: 1.337.60.20260603-063549
-    otelCollector:
-      imageRef:
-        repository: public.ecr.aws/dynatrace/dynatrace-otel-collector
-        tag: latest
-  tokens: kind-kind
----
-apiVersion: dynatrace.com/v1beta6
+# DynaKube: Kubernetes platform monitoring + Full-Stack observability (cloudNativeFullStack)
+# https://docs.dynatrace.com/docs/ingest-from/setup-on-k8s/deployment/full-stack-observability
+#
+# .devcontainer/deployment.sh 가 ${DT_API_URL} 을 치환해 적용한다.
+#   DT_API_URL = $DT_ENDPOINT/api   (예: https://abc12345.live.dynatrace.com/api)
+# 토큰은 DynaKube와 같은 이름의 Secret(kind-kind)에서 읽는다.
+#   apiToken        = DT_OPERATOR_TOKEN (Operator token)
+#   dataIngestToken = DT_TOKEN          (Data ingest token)
+#
+# - oneAgent.cloudNativeFullStack : 노드에 OneAgent(DaemonSet) + Pod에 code module 자동 주입(CSI driver)
+#                                   → Python(FastAPI/boto3/LangChain) 프로세스 자동 계측
+# - activeGate kubernetes-monitoring : K8s API 모니터링(cluster/workload/pod Smartscape)
+# - logMonitoring                 : container 로그 수집 (Full-Stack에서는 노드 OneAgent의 Log module 사용)
+apiVersion: dynatrace.com/v1beta5
 kind: DynaKube
 metadata:
   name: kind-kind
   namespace: dynatrace
+  annotations:
+    feature.dynatrace.com/injection-readonly-volume: "true"
 spec:
+  apiUrl: ${DT_API_URL}
+  metadataEnrichment:
+    enabled: true
+  oneAgent:
+    cloudNativeFullStack:
+      tolerations:
+        - effect: NoSchedule
+          key: node-role.kubernetes.io/master
+          operator: Exists
+        - effect: NoSchedule
+          key: node-role.kubernetes.io/control-plane
+          operator: Exists
   activeGate:
     capabilities:
-    - kubernetes-monitoring
-    image: public.ecr.aws/dynatrace/dynatrace-activegate:1.337.36.20260526-135434
-    replicas: 1
+      - routing
+      - kubernetes-monitoring
+    # Codespace(4 vCPU) 크기에 맞춘 값 — 필요 시 조정
     resources:
+      requests:
+        cpu: 250m
+        memory: 512Mi
       limits:
         cpu: 1000m
-        memory: 6Gi
-      requests:
-        cpu: 200m
-        memory: 6Gi
-  apiUrl: https://diw85600.live.dynatrace.com/api
+        memory: 1.5Gi
   logMonitoring: {}
-  templates:
-    kspmNodeConfigurationCollector:
-      imageRef:
-        repository: public.ecr.aws/dynatrace/dynatrace-k8s-node-config-collector
-        tag: 1.5.4
-    logMonitoring:
-      imageRef:
-        repository: public.ecr.aws/dynatrace/dynatrace-logmodule
-        tag: 1.343.112.20260907-115430
-  tokens: kind-kind
