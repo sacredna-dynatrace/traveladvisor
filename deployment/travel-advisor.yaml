@@ -26,41 +26,9 @@ spec:
           image: travel-advisor:local
           imagePullPolicy: Never
           env:
-            # ── Kubernetes metadata → OTel resource attributes ─────────────────────────
-            # Dynatrace가 OTel service를 Smartscape의 K8s cluster/namespace/workload/pod에
-            # 연결하려면 span/metric/log resource에 k8s.* 속성이 있어야 한다.
-            # (Traceloop은 Resource.create()를 쓰므로 OTEL_RESOURCE_ATTRIBUTES가 그대로 합쳐진다)
-            # k8s.cluster.uid = kube-system namespace UID. deployment.sh가 ConfigMap k8s-cluster-info로 만든다.
-            - name: K8S_CLUSTER_UID
-              valueFrom:
-                configMapKeyRef:
-                  name: k8s-cluster-info
-                  key: cluster-uid
-            - name: K8S_CLUSTER_NAME
-              valueFrom:
-                configMapKeyRef:
-                  name: k8s-cluster-info
-                  key: cluster-name
-            - name: K8S_NAMESPACE_NAME
-              valueFrom:
-                fieldRef:
-                  fieldPath: metadata.namespace
-            - name: K8S_POD_NAME
-              valueFrom:
-                fieldRef:
-                  fieldPath: metadata.name
-            - name: K8S_POD_UID
-              valueFrom:
-                fieldRef:
-                  fieldPath: metadata.uid
-            - name: K8S_NODE_NAME
-              valueFrom:
-                fieldRef:
-                  fieldPath: spec.nodeName
-            # workload / container 이름은 downward API로 얻을 수 없어 정적 값으로 지정
-            - name: OTEL_RESOURCE_ATTRIBUTES
-              value: >-
-                k8s.cluster.uid=$(K8S_CLUSTER_UID),k8s.cluster.name=$(K8S_CLUSTER_NAME),k8s.namespace.name=$(K8S_NAMESPACE_NAME),k8s.pod.name=$(K8S_POD_NAME),k8s.pod.uid=$(K8S_POD_UID),k8s.node.name=$(K8S_NODE_NAME),k8s.workload.kind=deployment,k8s.workload.name=travel-advisor,k8s.deployment.name=travel-advisor,k8s.container.name=travel-advisor
+            # 계측은 Dynatrace OneAgent(cloudNativeFullStack)가 Pod 생성 시 자동 주입한다.
+            # K8s cluster/namespace/workload/pod 연결(Smartscape)도 OneAgent가 처리하므로
+            # OTEL_RESOURCE_ATTRIBUTES 같은 추가 설정이 필요 없다.
             - name: AWS_DEFAULT_REGION
               valueFrom:
                 secretKeyRef:
