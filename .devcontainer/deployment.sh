@@ -24,11 +24,11 @@ kubectl -n travel-advisor create secret generic llm \
   --from-literal=anthropic-model=${ANTHROPIC_MODEL:-claude-haiku-4-5-20251001}
 
 # Dynatrace: OTLP ingest + RUM(Real User Monitoring) JavaScript tag
-#   DT_RUM_APP_ID : Web application ID (APPLICATION-XXXXXXXXXXXXXXXX). 앱 기동 시
-#                   $DT_ENDPOINT/api/v2/rum/javaScriptTag/<id> 로 최신 tag를 받아 HTML <head>에 삽입
-#                   (DT_TOKEN에 rumManualInsertionTags.read scope 필요)
-#   DT_RUM_SNIPPET: API 대신 테넌트에서 복사한 <script ...></script> 전체를 직접 지정할 때 사용
-#   둘 다 비어 있으면 RUM 비활성화
+#   DT_RUM_SNIPPET: 테넌트에서 복사한 <script ...></script> 전체 (권장). 그대로 HTML <head>에 삽입
+#   DT_RUM_APP_ID : (선택, classic RUM 전용) APPLICATION-XXXXXXXXXXXXXXXX 형식 ID. 앱 기동 시
+#                   $DT_ENDPOINT/api/v2/rum/javaScriptTag/<id> 로 tag를 조회 (rumManualInsertionTags.read 필요)
+#                   새 RUM의 FRONTEND-… ID는 이 API가 400(Invalid application identifier)을 반환하므로 쓸 수 없음
+#   DT_RUM_SNIPPET이 있으면 DT_RUM_APP_ID는 무시. 둘 다 비어 있으면 RUM 비활성화
 kubectl -n travel-advisor create secret generic dynatrace \
   --from-literal=token=$DT_TOKEN \
   --from-literal=endpoint=$DT_ENDPOINT/api/v2/otlp \
