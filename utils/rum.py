@@ -1,15 +1,15 @@
 """Dynatrace RUM (Real User Monitoring) JavaScript tag injection.
 
-이 앱은 OneAgent 없이 OTel SDK로만 계측되므로(DynaKube에 oneAgent 모드 없음) RUM 자동 주입이
-일어나지 않는다. 대신 Dynatrace Web Application의 "Agentless" JavaScript tag를 서버에서
-HTML <head> 맨 앞에 직접 삽입한다.
+Dynatrace Frontend(Web) application의 "Agentless" JavaScript tag를 서버에서
+HTML <head> 맨 앞에 직접 삽입한다. (OneAgent 자동 주입이 동작하는 환경이라면
+DT_RUM_SNIPPET을 비워 이중 삽입을 피한다)
 
 JavaScript tag를 얻는 방법 (우선순위 순):
   1. DT_RUM_SNIPPET  (env) / rum-snippet  (secret)  : 테넌트에서 복사한 <script ...></script> 전체
   2. DT_RUM_APP_ID   (env) / rum-app-id   (secret)  : 앱 기동 시 Dynatrace API로 최신 tag를 조회
        GET {tenant}/api/v2/rum/javaScriptTag/{applicationId}
        토큰 scope: rumManualInsertionTags.read
-     tenant URL은 DT_ENDPOINT(env) 또는 OTLP endpoint(.../api/v2/otlp)에서 추출한다.
+     tenant URL은 DT_ENDPOINT(env) 또는 secret endpoint에서 추출한다. (classic APPLICATION- ID 전용)
 둘 다 없으면 주입하지 않는다(기존 동작과 동일).
 """
 
