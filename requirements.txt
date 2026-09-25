@@ -6,11 +6,6 @@ langchain==0.3.14
 langchain_community==0.3.14
 langchain-aws == 0.2.10
 lxml == 5.2.2
-traceloop-sdk == 0.62.3  # emits gen_ai.provider.name (OTel GenAI semconv) for Dynatrace AI Observability ready-made dashboard
 uvicorn == 0.29.0
-wrapt<2  # traceloop 0.50.x LangChain instrumentation breaks with wrapt 2.x
 langchain-anthropic==0.3.3
 fastembed==0.5.1
-# OTel auto-instrumentation: traceloop-sdk 0.62.3이 끌어오는 opentelemetry-instrumentation 0.65b0과 버전을 맞춰야 함
-opentelemetry-instrumentation-fastapi==0.65b0
-opentelemetry-instrumentation-botocore==0.65b0

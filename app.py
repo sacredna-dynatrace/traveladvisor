@@ -1,17 +1,11 @@
 import logging
 import os
+import sys
 import time
 from fastapi import FastAPI, HTTPException
 from fastapi.staticfiles import StaticFiles
 from fastapi.responses import JSONResponse, FileResponse, HTMLResponse
 import uvicorn
-
-from opentelemetry import trace
-from opentelemetry.sdk.resources import Resource
-from traceloop.sdk import Traceloop
-from traceloop.sdk.decorators import workflow
-from opentelemetry.instrumentation.botocore import BotocoreInstrumentor
-from opentelemetry.instrumentation.fastapi import FastAPIInstrumentor
 
 from models.factory import get_model
 from pipeline.agentic import Agentic
@@ -21,13 +15,15 @@ from utils import format_message
 from utils.secrets import read_secret
 from utils.rum import load_rum_snippet, inject_snippet
 
-# disable traceloop telemetry
-os.environ["TRACELOOP_TELEMETRY"] = "false"
-# configure OTel accumulation method
-os.environ["OTEL_EXPORTER_OTLP_METRICS_TEMPORALITY_PREFERENCE"] = "delta"
-# 앱 로그를 OTLP(/v1/logs)로 내보낸다. Traceloop이 LoggerProvider + LoggingHandler를 붙이고,
-# LoggingHandler는 현재 span의 trace_id/span_id를 로그에 넣어 Dynatrace에서 service·trace와 연결된다.
-os.environ.setdefault("TRACELOOP_LOGGING_ENABLED", "true")
+# ################
+# # OBSERVABILITY
+# 이 branch는 코드 계측(Traceloop/OpenTelemetry SDK)을 쓰지 않는다.
+# Dynatrace OneAgent(cloudNativeFullStack)가 Pod에 주입되어 Python 프로세스를 자동 계측한다.
+#   - HTTP 요청(FastAPI)         : OneAgent feature "Python FastAPI"
+#   - Bedrock(boto3/botocore)     : "Python AWS SDK Client" + "Python AWS SDK GenAI Bedrock"
+#   - LangChain(chain/agent)      : "Python GenAI Langchain"
+#   - Anthropic SDK               : experimental sensor (best-effort)
+# 로그는 stdout으로 내보내고 OneAgent Log module이 container 로그로 수집한다.
 
 
 def read_token():
@@ -35,72 +31,34 @@ def read_token():
 
 
 def read_endpoint():
-    return os.environ.get("OTEL_ENDPOINT", read_secret("endpoint"))
+    # Dynatrace 환경 URL (예: https://abc12345.live.dynatrace.com). RUM tag API 조회에만 쓴다.
+    return os.environ.get("DT_ENDPOINT", read_secret("endpoint"))
 
 
-OTEL_ENDPOINT = read_endpoint()
-if OTEL_ENDPOINT.endswith("/v1/traces"):
-    OTEL_ENDPOINT = OTEL_ENDPOINT[: OTEL_ENDPOINT.find("/v1/traces")]
-
-
-# Logger는 Traceloop.init() 이후에 구성한다(아래 "CONFIGURE LOGGING").
-# 주의: 여기서 logging.basicConfig()를 먼저 부르면 Traceloop의 basicConfig(OTLP handler)가
-#       no-op이 되어 로그가 Dynatrace로 나가지 않는다.
-logger = logging.getLogger(__name__)
-
-# ################
-# # CONFIGURE OPENTELEMETRY
-
-resource = Resource.create(
-    {"service.name": "travel-advisor", "service.version": "0.3.0"}
-)
-
+DT_ENDPOINT = read_endpoint()
 TOKEN = read_token()
-headers = {"Authorization": f"Api-Token {TOKEN}"}
-
-otel_tracer = trace.get_tracer("travel-advisor")
-
-Traceloop.init(
-    app_name="travel-advisor",
-    api_endpoint=OTEL_ENDPOINT,
-    disable_batch=True,
-    headers=headers,
-)
 
 # ################
 # # CONFIGURE LOGGING
-# Traceloop이 root logger에 OTLP LoggingHandler를 붙였다(TRACELOOP_LOGGING_ENABLED=true).
-# 기존처럼 run.log 파일에도 남긴다. stdout에는 추가하지 않는다 — DynaKube logMonitoring이
-# container stdout을 따로 수집하므로 stdout에 쓰면 Dynatrace에 같은 로그가 두 번 들어간다.
+# stdout → OneAgent Log module(container 로그)로 Dynatrace에 수집. run.log 파일에도 남긴다.
+_log_format = logging.Formatter("%(asctime)s %(levelname)s [%(name)s] %(message)s")
 _root = logging.getLogger()
 _root.setLevel(logging.INFO)
-_otlp_log_handler = any(type(h).__name__ == "LoggingHandler" for h in _root.handlers)
+_stdout_handler = logging.StreamHandler(sys.stdout)
+_stdout_handler.setFormatter(_log_format)
 _file_handler = logging.FileHandler("run.log")
-_file_handler.setFormatter(
-    logging.Formatter("%(asctime)s %(levelname)s [%(name)s] %(message)s")
-)
+_file_handler.setFormatter(_log_format)
+_root.addHandler(_stdout_handler)
 _root.addHandler(_file_handler)
-# 라이브러리 내부 HTTP 로그(OTLP export 호출 포함)는 노이즈라 WARNING 이상만
+# 라이브러리 내부 HTTP 로그는 노이즈라 WARNING 이상만
 for _name in ("httpx", "httpcore", "urllib3", "botocore", "anthropic"):
     logging.getLogger(_name).setLevel(logging.WARNING)
 
-logger.info(f"OTLP log export {'enabled' if _otlp_log_handler else 'DISABLED (no LoggingHandler on root logger)'}")
+logger = logging.getLogger(__name__)
 
-# Dynatrace RUM JavaScript tag (agentless). DT_RUM_SNIPPET 또는 DT_RUM_APP_ID 로 활성화 — utils/rum.py 참고
-RUM_SNIPPET = load_rum_snippet(OTEL_ENDPOINT, TOKEN)
-
-# AWS SDK(botocore) 호출 계측: Bedrock Runtime / S3 / STS 등 모든 AWS API 호출을 CLIENT span으로 기록
-# (rpc.service, rpc.method, aws.request_id, aws.region 속성 포함)
-# 주의: botocore instrumentation의 Bedrock 확장은 gen_ai.usage.* 속성을 붙인다.
-#       Traceloop(OpenLLMetry)이 이미 같은 LLM 호출에 gen_ai span을 만들기 때문에
-#       그대로 두면 AI Observability 대시보드에서 토큰/비용이 2배로 집계된다.
-#       Bedrock 확장만 끄고 일반 AWS SDK span(Bedrock Runtime.InvokeModel 등)만 남긴다.
-if os.environ.get("OTEL_BOTOCORE_BEDROCK_GENAI", "false").lower() != "true":
-    from opentelemetry.instrumentation.botocore import extensions as _botocore_ext
-
-    # private API: opentelemetry-instrumentation-botocore 0.65b0 기준. 버전 올릴 때 이 dict 이름 확인할 것
-    _botocore_ext._BOTOCORE_EXTENSIONS.pop("bedrock-runtime", None)
-BotocoreInstrumentor().instrument()
+# Dynatrace RUM JavaScript tag (agentless). DT_RUM_SNIPPET 으로 활성화 — utils/rum.py 참고
+# (RUM tag는 앱이 직접 HTML <head>에 삽입한다 — 태그 값만 바꾸면 되도록 OneAgent 설정과 분리)
+RUM_SNIPPET = load_rum_snippet(DT_ENDPOINT, TOKEN)
 
 ## Pipelines
 
@@ -120,21 +78,6 @@ pipelines = {
 
 app = FastAPI()
 
-# FastAPI(ASGI) 인바운드 요청 계측: 모든 HTTP 요청을 SERVER span으로 기록하고
-# traceparent 헤더를 받아 upstream(RUM, Gateway 등)과 trace를 이어준다.
-# Traceloop.init()이 global TracerProvider를 설정한 뒤에 호출해야 같은 exporter로 나간다.
-FastAPIInstrumentor.instrument_app(
-    app,
-    # 정적 파일(public/) 요청은 trace에서 제외 — 데모 환경에 맞게 조정
-    excluded_urls=os.environ.get(
-        "OTEL_PYTHON_FASTAPI_EXCLUDED_URLS",
-        r"\.(css|js|map|png|jpg|jpeg|svg|ico|woff2?)$",
-    ),
-    # ASGI http.receive / http.send 내부 span 제거 (노이즈 감소)
-    exclude_spans=["receive", "send"],
-)
-
-
 @app.exception_handler(HTTPException)
 async def validation_exception_handler(request, exc):
     return JSONResponse(exc.detail, status_code=500)
@@ -143,13 +86,7 @@ async def validation_exception_handler(request, exc):
 ####################################
 @app.get("/api/v1/completion")
 def submit_completion(prompt: str, pipeline: str, lang: str = "en"):
-    # SERVER span은 FastAPIInstrumentor가 만들므로 여기서는 INTERNAL로 바꿔 SERVER span 중복을 피한다
-    with otel_tracer.start_as_current_span(
-        name="/api/v1/completion", kind=trace.SpanKind.INTERNAL
-    ) as span:
-        span.set_attribute("travel_advisor.pipeline", pipeline)
-        span.set_attribute("travel_advisor.language", lang)
-        return submit_workflow(prompt, pipeline, span, lang)
+    return submit_workflow(prompt, pipeline, lang)
 
 
 @app.get("/api/v1/info")
@@ -163,8 +100,7 @@ def info():
     }
 
 
-@workflow(name="travel_answer_generator")
-def submit_workflow(prompt: str, pipeline: str, span: trace.Span, lang: str = "en"):
+def submit_workflow(prompt: str, pipeline: str, lang: str = "en"):
     clean_prompt = prompt.lower().strip()
     if clean_prompt:
         p = pipeline.lower()
@@ -189,19 +125,16 @@ def submit_workflow(prompt: str, pipeline: str, span: trace.Span, lang: str = "e
         return result
     else:  # No, or invalid prompt given
         logger.warning("Completion rejected: empty or invalid prompt")
-        span.set_status(trace.status.StatusCode.ERROR, "Invalid prompt")
         return format_message("Sorry, the prompt provided is invalid")
 
 
 ####################################
 @app.get("/api/v1/thumbsUp")
-@otel_tracer.start_as_current_span("/api/v1/thumbsUp")
 def thumbs_up(prompt: str):
     logger.info(f"Positive user feedback for search term: {prompt}")
 
 
 @app.get("/api/v1/thumbsDown")
-@otel_tracer.start_as_current_span("/api/v1/thumbsDown")
 def thumbs_down(prompt: str):
     logger.info(f"Negative user feedback for search term: {prompt}")
 
