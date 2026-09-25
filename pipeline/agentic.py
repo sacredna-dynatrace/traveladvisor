@@ -12,16 +12,9 @@ from langchain_core.prompts.chat import ChatPromptTemplate, MessagesPlaceholder
 
 from utils import format_message
 
-from opentelemetry import trace
-from traceloop.sdk.decorators import agent as traceloop_agent
-
-# Agent identity reported with the OpenTelemetry GenAI agent semantic conventions
-# (gen_ai.operation.name = invoke_agent, gen_ai.agent.*). Dynatrace AI Observability
-# uses these attributes to show the agent in "Agents topology".
-AGENT_NAME = "travel-advisor-agent"
-AGENT_ID = "travel-advisor-agent-v1"
-AGENT_DESCRIPTION = "Checks whether the destination is a valid city and gives travel advice"
-PROVIDER_IDS = {"Anthropic Claude": "anthropic", "Amazon Bedrock": "aws.bedrock"}
+# 계측은 Dynatrace OneAgent가 담당한다(코드 변경 없음).
+# OneAgent "Python GenAI Langchain" 기능이 AgentExecutor·chain 실행을 span으로 만들고,
+# LLM 호출은 provider 기능(Python AWS SDK GenAI Bedrock / Anthropic experimental)이 계측한다.
 
 
 class Agentic(Pipeline):
@@ -104,21 +97,7 @@ Begin! Reminder to ALWAYS respond with a valid json blob of a single action. Use
             "Otherwise, provide an explanation on why you cannot answer. "
             f"{language_instruction(lang)}"
         )
-        response = self._invoke_agent(model, task)
+        response = self.agent_executor.invoke({"input": task})
         r = response["output"]
         print("Agent:", r)
         return format_message(r)
-
-    @traceloop_agent(name=AGENT_NAME)
-    def _invoke_agent(self, model: Model, task: str) -> dict:
-        span = trace.get_current_span()
-        provider = PROVIDER_IDS.get(getattr(model, "provider_name", ""), "unknown")
-        span.set_attribute("gen_ai.operation.name", "invoke_agent")
-        span.set_attribute("gen_ai.agent.name", AGENT_NAME)
-        span.set_attribute("gen_ai.agent.id", AGENT_ID)
-        span.set_attribute("gen_ai.agent.description", AGENT_DESCRIPTION)
-        span.set_attribute("gen_ai.provider.name", provider)
-        span.set_attribute("gen_ai.system", provider)
-        span.set_attribute("gen_ai.request.model", getattr(model, "model_name", ""))
-        span.set_attribute("gen_ai.agent.tools", [t.name for t in self.tools])
-        return self.agent_executor.invoke({"input": task})
