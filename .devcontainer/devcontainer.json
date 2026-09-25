@@ -59,8 +59,11 @@
 		"DT_ENDPOINT": {
 			"description": "eg. https://abc12345.live.dynatrace.com"
 		},
+		"DT_OPERATOR_TOKEN": {
+			"description": "Dynatrace Operator token (DynaKube apiToken) used to deploy OneAgent cloudNativeFullStack + ActiveGate. See https://docs.dynatrace.com/docs/ingest-from/setup-on-k8s/deployment/tokens-permissions"
+		},
 		"DT_TOKEN": {
-			"description": "Dynatrace API token with these permissions: Ingest metrics, Ingest logs, Ingest events, Ingest OpenTelemetry, Read metrics, Write settings"
+			"description": "Dynatrace data ingest token (DynaKube dataIngestToken): Ingest metrics, Ingest logs, Ingest OpenTelemetry traces"
 		},
 		"DT_RUM_SNIPPET": {
 			"description": "(Optional) Dynatrace RUM JavaScript tag. Paste the full <script ...></script> copied from the tenant, eg. <script type=\"text/javascript\" src=\"https://js-cdn.dynatrace.com/jstag/.../..._complete.js\" crossorigin=\"anonymous\"></script>. Injected into every HTML <head>. Leave empty to disable RUM"
