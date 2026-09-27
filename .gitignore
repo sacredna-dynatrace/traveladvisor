@@ -143,3 +143,6 @@ data/*
 # Ignore GitHub Pages Auto Generated HTML
 site/*
 __pycache__/
+
+# EKS 배포용 로컬 환경 변수 (실제 키 포함)
+.env-eks

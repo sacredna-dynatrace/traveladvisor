@@ -124,6 +124,17 @@ kubectl -n dynatrace get dynakube,pods
 kubectl -n travel-advisor describe pod -l name=travel-advisor | grep -i dynatrace   # 주입 init container / annotation
 ```
 
+## 4. Amazon EKS에 배포
+
+`deploy-eks.sh`가 EKS 클러스터 생성(eksctl) → ECR push → Operator/DynaKube → 앱 배포(LoadBalancer)까지 진행합니다. 환경 변수는 `.env-eks.example`을 복사해 사용합니다.
+
+```bash
+cp .env-eks.example .env-eks && chmod 600 .env-eks   # 값 입력
+source .env-eks && ./deploy-eks.sh
+```
+
+절차, 검증 결과(Anthropic), 트러블슈팅, Bedrock 후속 검증 계획은 [docs/eks-oneagent-test.md](docs/eks-oneagent-test.md)를 참고하세요.
+
 ## 로컬 실행 (Python 3.11, 계측 없음)
 
 ```bash
