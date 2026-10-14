@@ -1,7 +1,7 @@
 FROM python:3.11-bookworm
 
 COPY requirements.txt ./
-RUN pip install -r requirements.txt
+RUN pip install --upgrade pip && pip install -r requirements.txt
 
 # Pre-download the local embedding model used when LLM_PROVIDER=anthropic (no embeddings API at Anthropic)
 ENV FASTEMBED_CACHE_PATH=/opt/fastembed
